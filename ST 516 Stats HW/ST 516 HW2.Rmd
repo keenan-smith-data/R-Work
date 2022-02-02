@@ -1,0 +1,205 @@
+---
+title: 'ST 516 Homework #2'
+output:
+  html_notebook: default
+  '': default
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+Libraries
+```{r}
+library(dplyr)
+library(readr)
+```
+
+
+Problem #1
+Use T-Distribution to Determine Confidence Intervals
+```{r}
+speed <- c(24, 29, 23, 25, 24, 33, 26, 24, 29, 27, 26, 22, 32, 24, 21, 19, 29, 31, 26, 29, 31, 16)
+speed_means <- mean(speed)
+speed_sd <- sd(speed)
+num_obs <- length(speed)
+# Normal Distribution Confidence Intervals
+error <- qnorm(0.975) * speed_sd/sqrt(num_obs)
+left_norm <- speed_means - error
+right_norm <- speed_means + error
+# T-Distribution Confidence Intervals
+error_t <- qt(0.975, df = num_obs - 1) * speed_sd / sqrt(num_obs)
+left_t <- speed_means - error_t
+right_t <- speed_means + error_t
+
+left_t
+right_t
+# Plots
+hist(speed)
+```
+
+Problem #2
+95% confidence interval of 45 employees is (142, 165)
+```{r}
+
+```
+
+Problem #3
+```{r}
+textbook_costs <- c(500, 650, 600, 505, 450, 550, 515, 495, 650, 395)
+textbook_mean <- mean(textbook_costs)
+textbook_sd <- sd(textbook_costs)
+textbook_obs <- length(textbook_costs)
+# Calculated T-Statistic for Dataset
+textbook_t <- (textbook_mean - 500) / (textbook_sd/sqrt(textbook_obs))
+textbook_t
+
+# T-Test for Data Set. One for One-Tailed and Another for Two
+textbook_t_test <- t.test(textbook_costs, mu = 500, alternative = 'greater')
+textbook_t_test_2 <- t.test(textbook_costs, mu = 500)
+
+textbook_t_test
+textbook_t_test_2
+
+# T-Distribution for Confidence Intervals
+error_t_textbooks <- qt(0.975, df = textbook_obs - 1) * textbook_sd / sqrt(textbook_obs)
+left_t_textbooks <- textbook_mean - error_t_textbooks
+right_t_textbooks <- textbook_mean + error_t_textbooks
+
+```
+
+Problem #4
+Determining the Correct Amount of Samples that need to be taken to achieve range of 5 dollars with 95% confidence
+```{r}
+marketing_sd <- 12
+marketing_ME <- 5
+marketing_z_stat <- qnorm(0.975)
+n_marketing <- ((marketing_z_stat * marketing_sd) / marketing_ME) ^ 2
+
+
+```
+
+Problem #5
+```{r}
+salary_data <- read.csv('2013 ncaa tourney coaches salaries.csv')
+# print(head(salary_data))
+total_pay <- salary_data$TOTAL.PAY
+total_pay_mean <- mean(total_pay)
+total_pay_sd <- sd(total_pay)
+total_pay_obs <- length(total_pay)
+# Normal Distribution for 98% Confidence Intervals
+error_tp <- qnorm(0.99) * total_pay_sd/sqrt(total_pay_obs)
+left_norm_tp <- total_pay_mean - error_tp
+right_norm_tp <- total_pay_mean + error_tp
+# T-Distribution for  98% Confidence Intervals
+error_t_tp <- qt(0.99, df = total_pay_obs - 1) * total_pay_sd / sqrt(total_pay_obs)
+left_t_tp <- total_pay_mean - error_t_tp
+right_t_tp <- total_pay_mean + error_t_tp
+
+total_pay_t_test <- t.test(total_pay)
+
+left_norm_tp
+right_norm_tp
+
+```
+Problem #5 Part 2 without Mike Krzyzewski data in total pay
+```{r}
+salary_data <- read.csv('2013 ncaa tourney coaches salaries.csv')
+# print(head(salary_data))
+total_pay <- salary_data$TOTAL.PAY
+total_pay <- total_pay[2:length(total_pay)]
+total_pay_mean <- mean(total_pay)
+total_pay_sd <- sd(total_pay)
+total_pay_obs <- length(total_pay)
+# Normal Distribution for 98% Confidence Intervals
+error_tp <- qnorm(0.99) * total_pay_sd/sqrt(total_pay_obs)
+left_norm_tp <- total_pay_mean - error_tp
+right_norm_tp <- total_pay_mean + error_tp
+# T-Distribution for 98% Confidence Intervals
+error_t_tp <- qt(0.99, df = total_pay_obs - 1) * total_pay_sd / sqrt(total_pay_obs)
+left_t_tp <- total_pay_mean - error_t_tp
+right_t_tp <- total_pay_mean + error_t_tp
+
+total_pay_t_test <- t.test(total_pay)
+
+left_norm_tp
+right_norm_tp
+
+```
+
+Problem #6
+```{r}
+student_debt <- read_csv("student debt North Carolina.csv", col_type=list(.default=col_guess()))
+print(student_debt)
+
+us_mean_debt <- 21520
+nc_student_debt <- student_debt$`Average debt of graduates`
+nc_student_debt
+
+student_debt_t_test <- t.test(nc_student_debt, mu = us_mean_debt, alternative = 'less')
+student_debt_t_test
+```
+
+Problem #7
+```{r}
+soda_cans <- read.csv('soda cans per week.csv')
+soda_can_data <- soda_cans$ï..Cans
+big_n <- 28000
+soda_can_mean <- mean(soda_can_data)
+soda_can_sd <- sd(soda_can_data)
+soda_can_obs <- length(soda_can_data)
+# Normal Distribution
+error_soda <- qnorm(0.995) * soda_can_sd/sqrt(soda_can_obs)
+left_norm_soda <- soda_can_mean - error_soda
+right_norm_soda <- soda_can_mean + error_soda
+left_norm_big_soda <- big_n * left_norm_soda
+right_norm_big_soda <- big_n * right_norm_soda
+left_norm_big_soda
+right_norm_big_soda
+```
+
+Problem #8
+Problem 8 is a question on P-Values.
+The P-value is the probability, calculated assuming the null hypothesis H0 is true, of observing a value of the test statistic more extreme than the value we actually observed.
+```{r}
+
+```
+
+Problem #9
+```{r}
+exhaustion_mean <- 637
+exhaustion_sd <- 265
+exhaustion_obs <- 24
+
+self_talk_mean <- 750
+self_talk_sd <- 265
+
+#Calculating the Actual T Stat
+exh_t <- (self_talk_mean-exhaustion_mean)/(exhaustion_sd/sqrt(exhaustion_obs))
+
+#Quantile Function for t-dist
+# This is how you get the Error for Confidence Intervals
+exh_t_stat <- qt(0.975, df = exhaustion_obs - 1)
+# A way to calculate the P-value if a dataset is not given
+exh_p_value <- pt(-abs(exh_t),df=exhaustion_obs-1)
+
+```
+
+Problem #10
+```{r}
+raisins <- c(1219, 1214, 1087, 1200, 1419, 1121, 1325, 1345, 1244, 1258, 1356, 1132, 1191, 1270, 1295, 1135)
+raisins_mean <- mean(raisins)
+raisins_sd <- sd(raisins)
+raisins_obs <- length(raisins)
+
+# T-Test for Data set
+raisins_t_test <- t.test(raisins, mu = 1200, alternative = "greater")
+raisins_t_test
+```
+
