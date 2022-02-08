@@ -1,0 +1,148 @@
+---
+title: "ISE 537 Assignment 1"
+author: "Smith, Keenan"
+output: 
+  html_document: default
+---
+
+"Built with R Version `r getRversion()`"
+
+# Section 1
+
+1.  The estimated simple linear regression coefficient 𝛽0, measures the strength of a linear relationship between the predicting and response variables.
+
+-   False
+
+2.  In simple linear regression, a negative value of 𝛽1 is consistent with an inverse relationship between the predicting variable and the response variable.
+
+-   True
+
+3.  In simple linear regression, 𝛽0 is an unbiased estimator for 𝛽0.\
+
+-   True
+
+4.  If the assumptions of a simple linear regression model hold, then the estimator for the variance of the error terms, 𝜎2 is a random variable.
+
+-   False
+
+5.  Under the normality assumption, the estimated simple linear regression coefficient, 𝛽1, is a linear combination of normally distributed random variables.
+
+-   True
+
+6.  The p-value is a measure of the probability of rejecting the null hypothesis.
+
+-   False
+
+7.  In simple linear regression, the prediction interval of one member of the population will always be wider than the confidence interval of the mean response for all members of the population when using the same predicting value.
+
+-   True
+
+8.  In simple linear regression, the normality assumption states that the response variable is normally distributed.
+
+-   True
+
+# Section 2
+
+### Package Initiation Block
+
+```{r label = 'Package Initiation Block'}
+# Initiate Tidyverse since all relevant packages are located within
+library(tidyverse)
+```
+
+### Data Import and Function Definition
+
+Function for Regression Model source <https://sejohnston.com/2012/08/09/a-quick-and-easy-function-to-plot-lm-results-in-r/>
+
+```{r label = 'Import and Functions'}
+# Importing machine.csv in a dplyr dataframe
+machine <- read_csv("machine.csv", show_col_types = FALSE)
+# Inspecting Dataframe to ensure good import
+head(machine)
+
+# ggplot Regression Function for a Nicer Looking Plot
+gg_plot_regression <- function(fit) {
+  require(ggplot2)
+
+  ggplot(fit$model, aes_string(
+    x = names(fit$model)[2],
+    y = names(fit$model)[1]
+  )) +
+    geom_point() +
+    stat_smooth(method = "lm", col = "red") +
+    labs(title = paste(
+      "Adj R2 = ", signif(summary(fit)$adj.r.squared, 5),
+      "Intercept =", signif(fit$coef[[1]], 5),
+      " Slope =", signif(fit$coef[[2]], 5),
+      " P =", signif(summary(fit)$coef[2, 4], 5)
+    ))
+}
+```
+
+## 2.1 Exploratory Data Analysis
+
+1.  Use a scatter plot to describe the relationship between CPU performance and the maximum number of channels. Describe the general trend (direction and form). Include plots and R-code used. Exploratory Data Plotting
+
+```{r label = 'Exploratory Analysis'}
+summary(machine)
+max_performance <- ggplot(data = machine, aes(x = chmax, y = performance)) +
+  geom_point(color = "red") +
+  labs(
+    x = "Max Num of Channels", y = "Performance",
+    title = "Exploratory Analysis"
+  )
+
+max_performance
+```
+
+2.  What is the value of the correlation coefficient between performance and chmax? Please interpret the strength of the correlation based on the correlation coefficient. Correlation Coefficient Calculation
+
+```{r label = 'Correlation Coefficient'}
+chmax_vec <- machine %>%
+  pull(var = 2)
+
+performance_vec <- machine %>%
+  pull(var = 3)
+
+correlation_ch_perf <- cor(x = chmax_vec, y = performance_vec)
+correlation_ch_perf
+```
+
+3.  Based on this exploratory analysis, would you recommend a simple linear regression model for the relationship?
+
+-   Based on the correlation coefficient of \~ 0.61, their is a moderate to moderate-strong positive association between the number of channels and performance. A linear model should be explored to analyze further values.
+
+## Section 2.2 Linear Model
+
+Fitting a Linear Model to the Data
+
+```{r label = 'Linear Model'}
+performance_lm <- lm(performance ~ chmax, data = machine)
+
+summary(performance_lm)
+beta1_95 <- confint(performance_lm, level = 0.95)
+beta1_99 <- confint(performance_lm, level = 0.99)
+
+beta1_95
+beta1_99
+
+plot(performance_lm)
+gg_plot_regression(performance_lm)
+```
+
+1.  What are the model parameters and what are their estimates?
+
+-   𝛽1 = 3.7441 𝛽0 = 37.2235 and Sigma_hat = 128.3 on 207 df
+
+2.  Write down the estimated simple linear regression equation. $$ P = 37.2252 + 3.7441C $$
+3.  Interpret the estimated value of the 𝛽1 parameter in the context of the problem.
+
+-   According to the model, for each additional 1 max channel in a processor, there is a performance increase of an average of \~3.74 within the processor.
+
+4.  Find a 95% confidence interval for the 𝛽1 parameter. Is 𝛽1 statistically significant at this level?
+
+-   (3.069251, 4.418926) The p-value is less than 2e-16 which is less than alpha .05
+
+5.  Is 𝛽1 statistically significantly positive at an α-level of 0.01? What is the approximate p-value of this test?
+
+-   The p-value is less than 2e-16. The model is statistically significant.
