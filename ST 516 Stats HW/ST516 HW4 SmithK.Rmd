@@ -1,0 +1,127 @@
+---
+title: "ST516 HW#4"
+author: "Keenan Smith"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+"Built with R Version `r getRversion()`"
+
+Importing Neccessary Packages
+```{r label = 'Library Initiate Block'}
+library(tidyverse)
+```
+
+Function Block
+```{r}
+confidence_interval <- function(vector, interval) {
+  # Standard deviation of sample
+  vec_sd <- sd(vector)
+  # Sample size
+  n <- length(vector)
+  # Mean of sample
+  vec_mean <- mean(vector)
+  # Error according to t distribution
+  error <- qt((interval + 1)/2, df = n - 1) * vec_sd / sqrt(n)
+  # Confidence interval as a vector
+  result <- c("lower" = vec_mean - error, "upper" = vec_mean + error)
+  return(result)
+}
+
+difference_ttest_nosamples <- function(x1,s1,n1,x2,s2,n2,alpha=.975,
+                            alternative = 'both') {
+  # Calculating Degrees of Freedom for a T-test
+  b1 <- (((s1^2)/n1)+((s2^2)/n2))^2
+  b2 <- ((1/(n1-1))*(((s1^2)/n1)^2))+((1/(n2-1))*(((s2^2)/n2)^2))
+  df <- b1/b2
+  # Calculate T Value for Confidence Intervals
+  tstat3 <- qt(alpha,df)
+  # Calculate Confidence Intervals
+  upper_conf <- (x1 - x2) + tstat3 * sqrt(((s1^2)/n1)+((s2^2)/n2))
+  lower_conf <- (x1 - x2) - tstat3 * sqrt(((s1^2)/n1)+((s2^2)/n2))
+  #Calculate T-Statistic for the Difference of Means
+  tstat1 <- (x1 - x2) / sqrt(((s1^2)/n1)+((s2^2)/n2))
+  #If Ladder to take into account different P-Values
+  if (alternative == 'both') {
+    pstat1 <- 2*pt(abs(tstat1),df1,lower.tail = FALSE)
+  } else if (alternative == 'less') {
+    pstat1 <- pt(-abs(tstat1),df1,lower.tail = TRUE)
+  } else if (alternative == 'greater') {
+    pstat1 <- pt(abs(tstat1),df1,lower.tail = FALSE)
+  } else { #Error Statement 
+    pstat1 <- "Error"
+  }
+  result <- c("Lower" = lower_conf, "Upper" = upper_conf, 
+              "P-Value" = pstat1, "T-Stat" = tstat1,
+              "Deg Freedom" = df)
+  return(result)
+}
+
+
+
+```
+
+### Problem 1
+```{r label = 'Problem 1'}
+bb_grad_rates <- read_csv('recent NCAA tourn grad rates.csv', show_col_types = FALSE)
+bb_grad_rates
+# colnames(bb_grad_rates)
+
+mens_bb <- bb_grad_rates %>%
+  filter(`Men/Women` == "men")
+
+womens_bb <- bb_grad_rates %>%
+  filter(`Men/Women` == "women")
+
+t.test(mens_bb$`Graduation Rate`, womens_bb$`Graduation Rate`, conf.level = 0.99)
+
+ggplot(data = bb_grad_rates,aes(x = `Men/Women` , y = `Graduation Rate`)) +
+  geom_boxplot(show.legend = TRUE)
+
+```
+### Problem 2
+```{r label = 'Problem 2'}
+
+x1 <- 2.87
+x2 <- 3.16
+s1 <- 0.67
+s2 <- 0.53
+n1 <- 65
+n2 <- 65
+delta0 <- 0
+
+difference_ttest_nosamples(x1,s1,n1,x2,s2,n2, alternative = 'greater')
+
+
+```
+
+```{r}
+warm_football <- c(44,53,48,49,62,58,64,54,56,55)
+cold_football <- c(46,46,54,47,57,44,51,51,52,46)
+
+t.test(warm_football,cold_football,alternative= 'greater')
+```
+
+```{r}
+
+resident <- c(3200,3800,3000,3700,4300,2900,3900,2500,1800,4000,7400,2000,3100,5400,2000,1900,1900,1600,2700)
+nonresident <- c(7900,7500,7800,8500,12000,6400,8600,4600,4500,8600,12100,7900,8700,11200,5200,4900,4500,6000,6200)
+difference <- nonresident - resident
+
+
+confidence_interval(difference,0.95)
+
+tresident <- t.test(nonresident,resident)
+
+tresident
+
+```
+
+```{r label = "Problem 7"}
+regular <- c(16,20,21,22,23,22,27,25,27,28)
+premium <- c(19,22,24,24,25,25,26,26,28,32)
+
+t.test(premium,regular, paired = TRUE)
+```
+

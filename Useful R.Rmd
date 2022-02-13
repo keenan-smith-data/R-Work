@@ -1,0 +1,88 @@
+---
+title: "Useful R Functions"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+Function for Doing a T-Test with no sample data
+Only Sample Means/Standard Deviation/Number of Variables
+```{r}
+difference_ttest_nosamples <- function(x1,s1,n1,x2,s2,n2,alpha=.975,
+                            alternative = 'both') {
+  # Calculating Degrees of Freedom for a T-test
+  b1 <- (((s1^2)/n1)+((s2^2)/n2))^2
+  b2 <- ((1/(n1-1))*(((s1^2)/n1)^2))+((1/(n2-1))*(((s2^2)/n2)^2))
+  df <- b1/b2
+  # Calculate T Value for Confidence Intervals
+  tstat3 <- qt(alpha,df)
+  # Calculate Confidence Intervals
+  upper_conf <- (x1 - x2) + tstat3 * sqrt(((s1^2)/n1)+((s2^2)/n2))
+  lower_conf <- (x1 - x2) - tstat3 * sqrt(((s1^2)/n1)+((s2^2)/n2))
+  #Calculate T-Statistic for the Difference of Means
+  tstat1 <- (x1 - x2) / sqrt(((s1^2)/n1)+((s2^2)/n2))
+  #If Ladder to take into account different P-Values
+  if (alternative == 'both') {
+    pstat1 <- 2*pt(abs(tstat1),df1,lower.tail = FALSE)
+  } else if (alternative == 'less') {
+    pstat1 <- pt(-abs(tstat1),df1,lower.tail = TRUE)
+  } else if (alternative == 'greater') {
+    pstat1 <- pt(abs(tstat1),df1,lower.tail = FALSE)
+  } else { #Error Statement 
+    pstat1 <- "Error"
+  }
+  result <- c("Lower" = lower_conf, "Upper" = upper_conf, 
+              "P-Value" = pstat1, "T-Stat" = tstat1,
+              "Deg Freedom" = df)
+  return(result)
+}
+
+```
+
+Function for Determining Confidence Intervals of a Vector
+<https://stackoverflow.com/questions/48612153/how-to-calculate-confidence-intervals-for-a-vector>
+```{r}
+confidence_interval <- function(vector, interval) {
+  # Standard deviation of sample
+  vec_sd <- sd(vector)
+  # Sample size
+  n <- length(vector)
+  # Mean of sample
+  vec_mean <- mean(vector)
+  # Error according to t distribution
+  error <- qt((interval + 1)/2, df = n - 1) * vec_sd / sqrt(n)
+  # Confidence interval as a vector
+  result <- c("lower" = vec_mean - error, "upper" = vec_mean + error)
+  return(result)
+}
+```
+
+Really nice function for determining the Regression Line in ggplot2
+
+```{r}
+gg_plot_regression <- function(fit) {
+  require(ggplot2)
+
+  ggplot(fit$model, aes_string(
+    x = names(fit$model)[2],
+    y = names(fit$model)[1]
+  )) +
+    geom_point() +
+    stat_smooth(method = "lm", col = "red") +
+    labs(title = paste(
+      "Adj R2 = ", signif(summary(fit)$adj.r.squared, 5),
+      "Intercept =", signif(fit$coef[[1]], 5),
+      " Slope =", signif(fit$coef[[2]], 5),
+      " P =", signif(summary(fit)$coef[2, 4], 5)
+    ))
+}
+```
+
