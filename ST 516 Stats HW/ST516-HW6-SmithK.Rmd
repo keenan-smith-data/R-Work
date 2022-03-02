@@ -1,0 +1,209 @@
+---
+title: "ST516 HW6 SmithK"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(MASS)
+```
+
+Problem #1
+```{r}
+speed_x <- c(10, 15, 20, 23, 25, 27, 30, 33, 37, 40, 43, 47, 50, 53, 57, 60, 63, 67, 75, 80, 85, 90, 95, 100)
+stopping_distance_y <- c(27, 40, 59, 70, 80, 92, 107, 125, 130, 142, 151, 175, 203, 230, 265, 295, 330, 380, 450, 515, 580, 645, 719, 794)
+
+braking <- tibble(speed = speed_x, stopping_distance = stopping_distance_y)
+
+
+# Transformation
+braking <-
+  braking %>%
+  mutate(stopping_distance_log10 = log10(stopping_distance)) %>%
+  mutate(stopping_distance_sqrt = sqrt(stopping_distance))
+
+# Linear Regression Models
+lm_fit_braking <- lm(stopping_distance ~ speed, data = braking)
+lm_fit_braking2 <- lm(stopping_distance_log10 ~ speed, data = braking)
+lm_fit_braking3 <- lm(stopping_distance_sqrt ~ speed, data = braking)
+
+summary(lm_fit_braking)
+summary(lm_fit_braking3)
+
+# plot(lm_fit_braking)
+# plot(lm_fit_braking3)
+
+# Plot Section of LM Line
+ggplot(data = braking, aes(x = speed, y = stopping_distance)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+ggplot(data = braking, aes(x = speed, y = stopping_distance_sqrt)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+# Prediction Section
+prediction_braking <- tibble(speed = 75)
+
+prediction_braking_not_transformed <- predict(lm_fit_braking, newdata = prediction_braking)
+prediction_braking_transformed <- predict(lm_fit_braking3, newdata = prediction_braking)
+
+prediction_braking_transformed <- prediction_braking_transformed^2
+
+# Prediction Outcome for Not Transformed and Transformed Data
+prediction_braking_not_transformed
+prediction_braking_transformed
+```
+
+
+Problem #2
+```{r}
+moores_law <- read_csv("Moores law.csv")
+
+
+moores_law_transform <-
+  moores_law %>%
+  rename(transistors = `Transistors per microprocessor`) %>%
+  transmute(
+    year = Year - 1971, transistors = transistors,
+    transistors_sqrt = sqrt(transistors),
+    transistors_log = log10(transistors),
+    transistors_log2 = 1.5 * log2(transistors)
+  )
+
+moores_law_transform
+
+ggplot(data = moores_law_transform, aes(x = year, y = transistors_log2)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+
+lm_fit_moores_transform_log <- lm(transistors_log ~ year, data = moores_law_transform)
+lm_fit_moores_transform_log2 <- lm(transistors_log2 ~ year, data = moores_law_transform)
+
+summary(lm_fit_moores_transform_log)
+
+prediction_moores <- tibble(year = 2017 - 1971)
+
+prediction_moores_transformed <- predict(lm_fit_moores_transform_log, newdata = prediction_moores)
+prediction_moores_transformed <- 10^prediction_moores_transformed
+
+prediction_moores_transformed
+
+slope_moores <- lm_fit_moores_transform_log$coefficients[2]
+intercept_moores <- lm_fit_moores_transform_log$coefficients[1]
+
+year_one <- (0 * slope_moores + intercept_moores)
+
+year_one <- 10^year_one
+year_two <- (1 * slope_moores + intercept_moores)
+year_two <- 10^year_two
+
+percent_dif <- (((year_two) - (year_one)) / (year_one)) * 100
+```
+
+Problem #3
+```{r}
+flu_data <- read_csv("bird_flu_webassign.csv")
+
+# Original Tidy of Data
+flu_data <-
+  flu_data %>%
+  rename(
+    week_ending = `week ending`,
+    week_number = `week number`,
+    death_rate = `excess weekly death rate (annual basis)`,
+    city = `...4`
+  ) %>%
+  arrange(week_number)
+
+# Transforming data to fit Linear Regression
+flu_data_trans <-
+  flu_data %>%
+  mutate(
+    death_rate_adj = log(death_rate + 55),
+    week_number <- week_number
+  )
+flu_data_trans
+
+# Box Cox Transformation on non-negative data to get type of transformation
+
+# bc <- boxcox(death_rate_adj ~ week_number, data = flu_data_trans)
+#
+# lambda <- bc$x[which.max(bc$y)]
+# lambda
+
+# Original Linear Regression
+lm_fit_flu <- lm(death_rate ~ week_number, data = flu_data)
+# Transformed Linear Regression
+lm_fit_flu_trans <- lm(death_rate_adj ~ week_number, data = flu_data_trans)
+
+summary(lm_fit_flu)
+summary(lm_fit_flu_trans)
+
+# Plotting Section
+ggplot(data = flu_data, aes(x = week_number, y = death_rate)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+ggplot(data = flu_data_trans, aes(x = week_number, y = death_rate_adj)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+# Prediction of New Variables
+p_flu <- tibble(week_number = 4)
+
+p_flu_orig <- predict(lm_fit_flu, newdata = p_flu)
+p_flu_new <- predict(lm_fit_flu_trans, newdata = p_flu)
+p_flu_new <- exp(p_flu_new)
+p_flu_new
+```
+
+
+Problem #4
+```{r}
+pizza <- read_csv("pizza.csv")
+
+pizza <-
+  pizza %>%
+  rename(
+    diameter = `diameter (inches)`,
+    cost_per_inch = `cost /sq inch ($)`
+  )
+# Transform y to -1/sqrt(y)
+pizza <-
+  pizza %>%
+  mutate(
+    cost_sqrt = -(1 / sqrt(cost_per_inch)),
+    dia_sqrt = log(diameter)
+  )
+
+pizza
+lm_fit_pizza <- lm(cost_per_inch ~ diameter, data = pizza)
+lm_fit_pizza_adj <- lm(cost_sqrt ~ diameter, data = pizza)
+
+summary(lm_fit_pizza)
+summary(lm_fit_pizza_adj)
+
+ggplot(data = pizza, aes(x = diameter, y = cost_per_inch)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+ggplot(data = pizza, aes(x = diameter, y = cost_sqrt)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+p_pizza <- tibble(diameter = 13)
+
+p_pizza_trans <- predict(lm_fit_pizza_adj, newdata = p_pizza)
+
+p_pizza_trans <- (1 / (-p_pizza_trans)^2)
+p_pizza_trans
+# Area of 13 inch Pizza
+area_pizza <- pi * (13 / 2)^2
+area_pizza
+
+# Cost of Total 13 Inch Pizza
+p_pizza_trans * area_pizza
+```
