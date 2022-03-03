@@ -1,0 +1,153 @@
+---
+title: 'ISE537 Homework #2'
+author: "Keenan Smith"
+date: "3/2/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+1) Prediction is the only objective of multiple linear regression. 
+☐ True ☐ False
+2) In multiple linear regression, we study the relationship between a single response variable and several predicting quantitative and/or qualitative variables.
+☐ True ☐ False
+3) A multiple linear regression model contains 5 quantitative predicting variables and an intercept. The number of parameters to estimate is 6. 
+☐ True ☐ False
+4) Given a qualitative predicting variable with 7 categories in a linear regression model with intercept, 7 dummy variables need to be included in the model. 
+☐ True ☐ False
+5) In multiple linear regression, quantitative variables can be transformed into qualitative or categorical variables. 
+☐ True ☐ False
+6) The estimated variance of the error terms of a multiple linear regression model with intercept can be obtained by summing up the squared residuals and dividing that by n – p, where n is the sample size and p is the number of predictors. 
+☐ True ☐ False
+7) In a first-order multiple linear regression model, the estimated regression coefficient corresponding to a quantitative predicting variable is interpreted as the estimated expected change in the response variable when there is a change of one unit in the corresponding predicting variable holding all other predictors fixed. 
+☐ True ☐ False
+8) In multiple linear regression, the estimation of the variance of the error terms is unnecessary for making statistical inference on the regression coefficients. 
+☐ True ☐ False
+9) In multiple linear regression, the sampling distribution used for estimating confidence intervals for the regression coefficients is the normal distribution. 
+☐ True ☐ False
+10) The estimated regression coefficients obtained by using the method of least squares are biased estimators of the true regression coefficients. 
+☐ True ☐ False
+11) Conducting t-tests on each parameter 𝛽 is preferable to an F-test when testing the overall significance of a multiple linear regression model. 
+☐ True ☐ False
+12) A partial F-test can be used to test the null hypothesis that the regression coefficients associated with a subset of the predicting variables in a multiple linear regression model are all equal to zero. 
+☐ True ☐ False
+13) In multiple linear regression, if the F-test statistic is greater than the appropriate F-critical value, then at least one of the slope coefficients is significantly different from zero at the given significance level. 
+☐ True ☐ False
+14) In multiple linear regression, the uncertainty of the prediction of a new response comes only from the newness of the observation. 
+☐ True ☐ False
+
+
+Library Import
+```{r}
+library(tidymodels)
+library(tidyverse)
+tidymodels_prefer()
+```
+
+
+Import Dataset and Tidy
+```{r cars}
+fish <- read_csv("fish.csv")
+fram <- read_csv("fram.csv")
+
+fish <-
+  fish %>%
+  rename(weight = Weight,
+         species = Species,
+         body_heigh = `Body Height`,
+         total_length = `Total Length`,
+         diagonal_length = `Diagonal Length`,
+         height = Height,
+         width = Width)
+fram <-
+  fram %>%
+  rename(sex = SEX,
+         age = AGE,
+         sysbp = SYSBP,
+         cursmoke = CURSMOKE,
+         bmi = BMI) %>%
+  mutate(sex_fact = as.factor(sex),
+         cursmoke_fact = as.factor(cursmoke))
+
+fram_mod <-
+  fram %>%
+
+  filter(bmi >= 30)
+
+fram
+
+```
+
+```{r}
+# Creating Linear Regression Model Engine
+lm_model <-
+  linear_reg() %>%
+  set_engine("lm")
+```
+
+```{r}
+
+#Spending Data Allocation for Modelling
+# set.seed(123)
+# ames_split <- initial_split(ames, prop = 0.80, strata = Sale_Price)
+# ames_train <- training(ames_split)
+# ames_test <- testing(ames_split)
+
+#Recipe Creation for Tidy Models
+fram_rec <-
+  recipe(sysbp ~ sex_fact + cursmoke_fact + bmi, data = fram) %>%
+  step_dummy(all_nominal_predictors())
+
+summary(fram_rec)
+# Creating Workflow for Tidy Models
+lm_wflow <-
+  workflow() %>%
+  add_recipe(fram_rec) %>%
+  add_model(lm_model)
+  
+# Fitting the Linear Regression to the Data
+lm_fit <- fit(lm_wflow, fram)
+
+# Tidying the Fitted Data
+lm_fit %>%
+  extract_fit_parsnip() %>%
+  tidy()
+
+# Bringing the Model back into Base R to use Base R functions on the Model
+lm_fit_var <- lm_fit %>% extract_fit_engine()
+
+fram_residuals <- tibble(residuals = lm_fit_var$residuals)
+summary(lm_fit_var)
+plot(lm_fit_var)
+```
+
+```{r}
+#Recipe Creation for Tidy Models
+modified_rec <-
+  recipe(sysbp ~ sex + cursmoke + bmi, data = fram_mod) %>%
+  step_dummy(all_nominal_predictors())
+
+# Creating Workflow for Tidy Models
+lm_wflow_fram_mod <-
+  workflow() %>%
+  add_recipe(modified_rec) %>%
+  add_model(lm_model)
+  
+# Fitting the Linear Regression to the Data
+lm_fit_mod <- fit(lm_wflow_fram_mod, fram_mod)
+
+# Tidying the Fitted Data
+lm_fit_mod %>%
+  extract_fit_parsnip() %>%
+  tidy()
+
+# Bringing the Model back into Base R to use Base R functions on the Model
+lm_fit_var_mod <- lm_fit_mod %>% extract_fit_engine()
+
+summary(lm_fit_var_mod)
+plot(lm_fit_var_mod)
+```
+
