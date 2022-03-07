@@ -3,7 +3,9 @@ title: 'ISE537 Homework #2'
 author: "Keenan Smith"
 date: "3/6/2022"
 output:
-  html_document: default
+  word_document: default
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -45,7 +47,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(visreg)
+library(performance)
 library(parameters)
+library(ggstatsplot)
+library(conflicted)
+conflict_prefer("filter", "dplyr")
 ```
 
 
@@ -64,6 +70,7 @@ fram <-
 
 fram_mod <-
   fram %>%
+
   filter(bmi >= 30)
 ```
 
@@ -78,7 +85,8 @@ model_parameters(lm_fit_fram, summary = TRUE)
 # Summary Plots
 plot(lm_fit_fram)
 visreg(lm_fit_fram)
-performance::check_model(lm_fit_fram)
+check_model(lm_fit_fram)
+ggcoefstats(lm_fit_fram)
 
 # Residual Tibble
 fram_residuals <- tibble(residuals = lm_fit_fram$residuals)
@@ -242,6 +250,7 @@ model1 %>%
 # Bringing the Model back into Base R to use Base R functions on the Model
 model1_eng <- model1 %>% extract_fit_engine()
 
+summary(model1_eng)
 plot(model1_eng)
 model_parameters(model1_eng)
 
@@ -251,7 +260,7 @@ fish_residuals <-
   fish %>%
   bind_cols(fish_residuals)
 
-performance::check_model(model1_eng)
+check_model(model1_eng)
 ```
 
 ### Question 2: Fitting the Multiple Linear Regression Model
@@ -285,8 +294,9 @@ model2_rec <-
 
 # Creating Workflow for Tidy Models
 lm_wflow_m2 <-
-  lm_wflow_m1 %>%
-  update_recipe(model2_rec)
+  workflow() %>%
+  add_recipe(model2_rec) %>%
+  add_model(lm_model)
 
 # Fitting the Linear Regression to the Data
 model2 <- fit(lm_wflow_m2, fish2)
@@ -299,6 +309,7 @@ model2 %>%
 # Bringing the Model back into Base R to use Base R functions on the Model
 model2_eng <- model2 %>% extract_fit_engine()
 
+summary(model2_eng)
 plot(model2_eng)
 model_parameters(model2_eng)
 
@@ -312,7 +323,7 @@ fish2_residuals <-
   bind_cols(fish2_std_residuals) %>%
   bind_cols(fish2_fitted_values)
 
-performance::check_model(model2_eng)
+check_model(model2_eng)
 
 ```
 
@@ -365,8 +376,9 @@ model3_rec <-
 
 # Creating Workflow for Tidy Models
 lm_wflow_m3 <-
-  lm_wflow_m1 %>%
-  update_recipe(model3_rec)
+  workflow() %>%
+  add_recipe(model3_rec) %>%
+  add_model(lm_model)
 
 # Fitting the Linear Regression to the Data
 model3 <- fit(lm_wflow_m3, fish2)
@@ -379,6 +391,7 @@ model3 %>%
 # Bringing the Model back into Base R to use Base R functions on the Model
 model3_eng <- model3 %>% extract_fit_engine()
 
+summary(model3_eng)
 plot(model3_eng)
 model_parameters(model3_eng)
 
@@ -392,7 +405,7 @@ fish3_residuals <-
   bind_cols(fish3_std_residuals) %>%
   bind_cols(fish3_fitted_values)
 
-performance::check_model(model3_eng)
+check_model(model3_eng)
 ```
 
 
@@ -444,7 +457,7 @@ model4_rec <-
 
 # Creating Workflow for Tidy Models
 lm_wflow_m4 <-
-  lm_wflow_m1 %>%
+  lm_wflow_m3 %>%
   update_recipe(model4_rec)
 
 # Fitting the Linear Regression to the Data
@@ -458,6 +471,7 @@ model4 %>%
 # Bringing the Model back into Base R to use Base R functions on the Model
 model4_eng <- model4 %>% extract_fit_engine()
 
+summary(model4_eng)
 plot(model4_eng)
 model_parameters(model4_eng)
 
@@ -471,7 +485,7 @@ fish4_residuals <-
   bind_cols(fish4_std_residuals) %>%
   bind_cols(fish4_fitted_values)
 
-performance::check_model(model4_eng)
+check_model(model4_eng)
 ```
 
 ### Question 7: Transformation
@@ -515,6 +529,9 @@ a. Using each model summary, compare and discuss the R-squared and Adjusted R-sq
 - Model 2 has an adjusted R2 of .9335, Model 3 has one of .9321 and Model 4 is .98. This indicates that the transformation implemented in model 4 is an effective model for multiple linear regression in this application. Further study could adjust the model to allow for more predictors in an educated and informed way.
 
 ```{r}
+conflict_prefer("rmse", "yardstick")
+conflict_prefer("mae", "yardstick")
+
 test_fish <- predict(model4, new_data = fishtest %>% select(-weight))
 test_fish <-
   test_fish %>%

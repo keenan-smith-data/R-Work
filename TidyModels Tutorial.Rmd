@@ -126,4 +126,3 @@ ggplot(ames_test_res, aes(x = Sale_Price, y = .pred)) +
 ames_metrics <- metric_set(rmse, rsq, mae)
 ames_metrics(ames_test_res, truth = Sale_Price, estimate = .pred)
 ```
-
