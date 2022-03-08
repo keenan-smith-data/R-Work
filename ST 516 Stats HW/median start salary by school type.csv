@@ -1,0 +1,250 @@
+﻿School Name,Starting Median Salary,State,Party,Ivy League,Engineering
+Amherst College,54500,0,0,0,0
+Appalachian State University,40400,1,0,0,0
+Arizona State University (ASU),47400,0,1,0,0
+Arkansas State University (ASU),38700,1,0,0,0
+Auburn University,45400,1,0,0,0
+Austin Peay State University,37700,1,0,0,0
+Ball State University (BSU),39100,1,0,0,0
+Bates College,47300,0,0,0,0
+Binghamton University,53600,1,0,0,0
+Black Hills State University,35300,1,0,0,0
+Boise State University (BSU),40800,1,0,0,0
+Bowdoin College,48100,0,0,0,0
+Bowling Green State University,39800,1,0,0,0
+Brown University,56200,0,0,1,0
+Bucknell University,54100,0,0,0,0
+Cal Poly San Luis Obispo,57200,1,0,0,0
+California Institute of Technology (CIT),75500,0,0,0,1
+"California State University (CSU), Chico",47400,1,0,0,0
+"California State University (CSU), Stanislaus",38000,1,0,0,0
+"California State University, Dominguez Hills (CSUDH)",42700,1,0,0,0
+"California State University, East Bay (CSUEB)",49200,1,0,0,0
+"California State University, Fullerton (CSUF)",45700,1,0,0,0
+"California State University, Long Beach (CSULB)",45100,1,0,0,0
+"California State University, Northridge (CSUN)",45500,1,0,0,0
+"California State University, Sacramento (CSUS)",47800,1,0,0,0
+Carleton College,47500,0,0,0,0
+Carnegie Mellon University (CMU),61800,0,0,0,1
+Clemson University,48400,1,0,0,0
+Cleveland State University,43500,1,0,0,0
+Colby College,46400,0,0,0,0
+Colgate University,52800,0,0,0,0
+College of the Holy Cross,50200,0,0,0,0
+Colorado College (CC),38500,0,0,0,0
+Colorado School of Mines,58100,0,0,0,1
+Colorado State University (CSU),44800,1,0,0,0
+Columbia University,59400,0,0,1,0
+Cooper Union,62200,0,0,0,1
+Cornell University,60300,0,0,1,0
+Dartmouth College,58000,0,0,1,0
+Davidson College,46100,0,0,0,0
+Denison University,42000,0,0,0,0
+DePauw University,41400,0,0,0,0
+East Carolina University (ECU),40200,1,0,0,0
+Eastern Michigan University,40300,1,0,0,0
+Eastern Washington University,38600,1,0,0,0
+Embry-Riddle Aeronautical University (ERAU),52700,0,0,0,1
+Evergreen State College,39500,0,0,0,0
+Fitchburg State College,42400,1,0,0,0
+Florida Atlantic University (FAU),42600,1,0,0,0
+Florida International University (FIU),43200,1,0,0,0
+Florida State University (FSU),42100,0,1,0,0
+Fort Lewis College,42000,0,0,0,0
+Franklin and Marshall College,49100,0,0,0,0
+George Mason University,47800,1,0,0,0
+Georgia Institute of Technology,58300,0,0,0,1
+Georgia State University,41800,1,0,0,0
+Gettysburg College,44700,0,0,0,0
+Grinnell College,42600,0,0,0,0
+Gustavus Adolphus College,44500,0,0,0,0
+Hamilton College,49200,0,0,0,0
+Harvard University,63400,0,0,1,0
+Harvey Mudd College,71800,0,0,0,1
+Humboldt State University,42600,1,0,0,0
+Idaho State University,44900,1,0,0,0
+Illinois Institute of Technology (IIT),56000,0,0,0,1
+Illinois State University,42000,1,0,0,0
+"Indiana University (IU), Bloomington",46300,0,1,0,0
+Iowa State University,45400,1,0,0,0
+Juniata College,41800,0,0,0,0
+Kansas State University (KSU),43300,1,0,0,0
+Kent State University,38700,1,0,0,0
+Lafayette College,53900,0,0,0,0
+Lamar University,46500,1,0,0,0
+Lewis & Clark College,38900,0,0,0,0
+Louisiana State University (LSU),46900,0,1,0,0
+Massachusetts Institute of Technology (MIT),72200,0,0,0,1
+Michigan State University (MSU),46300,1,0,0,0
+Middlebury College,47700,0,0,0,0
+Minnesota State University - Mankato,43300,1,0,0,0
+Mississippi State University (MSU),44500,1,0,0,0
+Missouri State University (MSU),36100,1,0,0,0
+Montana State University - Billings,37900,1,0,0,0
+Montana State University - Bozeman,46600,1,0,0,0
+Moravian College,42500,0,0,0,0
+Morehead State University,34800,1,0,0,0
+Mount Holyoke College,42400,0,0,0,0
+New Mexico Institute of Mining and Technology (New Mexico Tech),51000,0,0,0,1
+New Mexico State University,44300,1,0,0,0
+North Carolina State University (NCSU),47200,1,0,0,0
+North Dakota State University (NDSU),45100,1,0,0,0
+Northern Illinois University (NIU),43600,1,0,0,0
+Oberlin College,43400,0,0,0,0
+Occidental College,51900,0,0,0,0
+Ohio State University (OSU),44900,1,0,0,0
+Ohio University,42200,0,1,0,0
+Oklahoma State University,42800,1,0,0,0
+Oregon State University (OSU),45100,1,0,0,0
+Penn State - Harrisburg,45700,1,0,0,0
+Pennsylvania State University (PSU),49900,0,1,0,0
+Pittsburg State University,40400,1,0,0,0
+"Polytechnic University of New York, Brooklyn",62400,0,0,0,1
+Pomona College,48600,0,0,0,0
+Portland State University (PSU),42600,1,0,0,0
+Princeton University,66500,0,0,1,0
+Purdue University,51400,1,0,0,0
+Randolph-Macon College,42600,0,1,0,0
+Reed College,40500,0,0,0,0
+Rensselaer Polytechnic Institute (RPI),61100,0,0,0,1
+Rochester Institute of Technology (RIT),48900,0,0,0,1
+Rutgers University,50300,1,0,0,0
+San Diego State University (SDSU),46200,1,0,0,0
+San Francisco State University (SFSU),47300,1,0,0,0
+San Jose State University (SJSU),53500,1,0,0,0
+Siena College,45500,0,0,0,0
+Skidmore College,41600,0,0,0,0
+Smith College,44000,0,0,0,0
+South Dakota School of Mines & Technology,55800,0,0,0,1
+South Dakota State University (SDSU),41100,1,0,0,0
+Southern Illinois University Carbondale,43000,1,0,0,0
+Southern Utah University,41900,1,0,0,0
+St. Cloud State University,41800,1,0,0,0
+St. Olaf College,45300,0,0,0,0
+State University of New York (SUNY) at Albany,44500,0,1,0,0
+State University of New York (SUNY) at Buffalo,46200,1,0,0,0
+State University of New York (SUNY) at Farmingdale,47300,1,0,0,0
+State University of New York (SUNY) at Fredonia,37800,1,0,0,0
+State University of New York (SUNY) at Geneseo,42300,1,0,0,0
+State University of New York (SUNY) at Oneonta,37500,1,0,0,0
+State University of New York (SUNY) at Oswego,38000,1,0,0,0
+State University of New York (SUNY) at Plattsburgh,40800,1,0,0,0
+State University of New York (SUNY) at Potsdam,38000,1,0,0,0
+Stevens Institute of Technology,60600,0,0,0,1
+Stony Brook University,49500,1,0,0,0
+Swarthmore College,49700,0,0,0,0
+Tarleton State University (TSU),40800,1,0,0,0
+Tennessee Technological University,46200,0,0,0,1
+Texas A&M University,49700,1,0,0,0
+Thomas Aquinas College,41500,0,0,0,0
+Union College,47200,0,0,0,0
+University of Akron,41100,1,0,0,0
+University of Alabama at Birmingham (UAB),39200,1,0,0,0
+University of Alabama at Huntsville (UAH),43100,1,0,0,0
+"University of Alabama, Tuscaloosa",41300,0,1,0,0
+"University of Alaska, Anchorage",45900,1,0,0,0
+University of Arizona,47500,1,0,0,0
+University of Arkansas - Monticello (UAM),39200,1,0,0,0
+University of Arkansas,44100,1,0,0,0
+University of California at Los Angeles (UCLA),52600,1,0,0,0
+"University of California, Berkeley",59900,1,0,0,0
+"University of California, Davis",52300,1,0,0,0
+"University of California, Irvine (UCI)",48300,1,0,0,0
+"University of California, Riverside (UCR)",46800,1,0,0,0
+"University of California, San Diego (UCSD)",51100,1,0,0,0
+"University of California, Santa Barbara (UCSB)",50500,0,1,0,0
+"University of California, Santa Cruz (UCSC)",44700,1,0,0,0
+University of Central Florida (UCF),42600,1,0,0,0
+University of Colorado - Boulder (UCB),47100,1,0,0,0
+University of Colorado - Denver,46100,1,0,0,0
+University of Connecticut (UConn),48000,1,0,0,0
+University of Delaware,45900,1,0,0,0
+University of Florida (UF),47100,0,1,0,0
+University of Georgia (UGA),44100,0,1,0,0
+University of Hawaii,43800,1,0,0,0
+University of Houston (UH),46000,1,0,0,0
+University of Idaho,44900,1,0,0,0
+University of Illinois at Chicago,47500,1,0,0,0
+University of Illinois at Urbana-Champaign (UIUC),52900,0,1,0,0
+University of Iowa (UI),44700,0,1,0,0
+University of Kansas,42400,1,0,0,0
+University of Kentucky (UK),42800,1,0,0,0
+University of Louisiana (UL) at Lafayette,41100,1,0,0,0
+University Of Maine,41200,1,0,0,0
+University of Maryland Baltimore County (UMBC),47000,1,0,0,0
+"University of Maryland, College Park",52000,0,1,0,0
+University of Massachusetts (UMass) - Amherst,46600,1,0,0,0
+University of Massachusetts (UMass) - Boston,45600,1,0,0,0
+University of Massachusetts (UMass) - Dartmouth,43200,1,0,0,0
+University of Massachusetts (UMass) - Lowell,45400,1,0,0,0
+University of Memphis (U of M),41400,1,0,0,0
+University of Michigan,52700,1,0,0,0
+University of Minnesota,46200,1,0,0,0
+University of Mississippi,41400,0,1,0,0
+University of Missouri - Columbia,41700,1,0,0,0
+University of Missouri - Kansas City (UMKC),38900,1,0,0,0
+University of Missouri - Rolla (UMR),57100,1,0,0,0
+University of Missouri - St. Louis (UMSL),41400,1,0,0,0
+University of Montana,37300,1,0,0,0
+University of Nebraska at Omaha,41500,1,0,0,0
+University of Nebraska,45700,1,0,0,0
+"University of Nevada, Las Vegas (UNLV)",45200,1,0,0,0
+"University of Nevada, Reno (UNR)",46500,1,0,0,0
+University of New Hampshire (UNH),41800,0,1,0,0
+University of New Mexico (UNM),41600,1,0,0,0
+University of North Carolina at Chapel Hill (UNCH),42900,1,0,0,0
+University of North Carolina at Charlotte (UNCC),43100,1,0,0,0
+University of North Carolina at Wilmington (UNCW),37500,1,0,0,0
+University of North Dakota,44000,1,0,0,0
+University of Oklahoma,44700,1,0,0,0
+University of Oregon,42200,1,0,0,0
+University of Pennsylvania,60900,0,0,1,0
+University of Puget Sound,46600,0,0,0,0
+University of Rhode Island (URI),43900,1,0,0,0
+University of Richmond,48600,0,0,0,0
+University of South Carolina,40000,1,0,0,0
+University of South Florida (USF),41100,1,0,0,0
+University of Southern Maine,39400,1,0,0,0
+University of Tennessee,43800,0,1,0,0
+University of Texas (UT) - Austin,49700,0,1,0,0
+University of Texas at Arlington (UTA),45400,1,0,0,0
+University of Texas at El Paso (UTEP),43400,1,0,0,0
+University of Texas at San Antonio (UTSA),42500,1,0,0,0
+University of Toledo,43100,1,0,0,0
+University of Utah,45400,1,0,0,0
+University of Vermont (UVM),44800,1,0,0,0
+University of Virginia (UVA),52700,1,0,0,0
+University of Washington (UW),48800,1,0,0,0
+University of Wisconsin (UW) - Eau Claire,41400,1,0,0,0
+University of Wisconsin (UW) - Green Bay,35800,1,0,0,0
+University of Wisconsin (UW) - La Crosse,42200,1,0,0,0
+University of Wisconsin (UW) - Madison,48900,1,0,0,0
+University of Wisconsin (UW) - Milwaukee,42300,1,0,0,0
+University of Wisconsin (UW) - Oshkosh,39300,1,0,0,0
+University of Wisconsin (UW) - Parkside,40700,1,0,0,0
+University of Wisconsin (UW) - Platteville,45800,1,0,0,0
+University of Wisconsin (UW) - Stevens Point,39800,1,0,0,0
+University of Wisconsin (UW) - Stout,43600,1,0,0,0
+University of Wisconsin (UW) - Whitewater,40800,1,0,0,0
+University of Wyoming (UW),44500,1,0,0,0
+Ursinus College,42100,0,0,0,0
+Utah State University,43800,1,0,0,0
+Utah Valley State College,42400,1,0,0,0
+Vassar College,46000,0,0,0,0
+Virginia Commonwealth University (VCU),42000,1,0,0,0
+Virginia Polytechnic Institute and State University (Virginia Tech),53500,0,0,0,1
+Washington and Lee University,53600,0,0,0,0
+Washington State University (WSU),45300,1,0,0,0
+Wayne State University,42800,1,0,0,0
+Wellesley College,42800,0,0,0,0
+Wentworth Institute of Technology,53000,0,0,0,1
+"Wesleyan University (Middletown, Connecticut)",46500,0,0,0,0
+West Virginia University (WVU),43100,0,1,0,0
+Western Carolina University,36900,1,0,0,0
+Western Michigan University (WMU),42300,1,0,0,0
+Western Washington University,42700,1,0,0,0
+Whitman College,43500,0,0,0,0
+Williams College,51700,0,0,0,0
+Wittenberg University,39200,0,0,0,0
+Worcester Polytechnic Institute (WPI),61000,0,0,0,1
+Yale University,59100,0,0,1,0

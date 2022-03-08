@@ -2,8 +2,10 @@
 title: 'ISE537 Homework #2'
 author: "Keenan Smith"
 date: "3/6/2022"
-output:
-  html_document: default
+output: 
+  html_document:
+    theme:
+      bootswatch: simplex
 ---
 
 ```{r setup, include=FALSE}
@@ -29,7 +31,7 @@ knitr::opts_chunk$set(echo = TRUE)
 - False
 9) In multiple linear regression, the sampling distribution used for estimating confidence intervals for the regression coefficients is the normal distribution. 
 - True 
-10) The estimated regression coefficients obtained by using the method of least squares are biased estimators of the true regression coefficients. 
+10) The estimated regression coefficients obtained by using the method of least squares are biased estimators of the true regression coefficients.
 - False
 11) Conducting t-tests on each parameter 𝛽 is preferable to an F-test when testing the overall significance of a multiple linear regression model. 
 - False
@@ -40,9 +42,8 @@ knitr::opts_chunk$set(echo = TRUE)
 14) In multiple linear regression, the uncertainty of the prediction of a new response comes only from the newness of the observation.
 - False
 
-
 ## Library Import
-```{r}
+```{r include=FALSE}
 library(tidyverse)
 library(visreg)
 library(parameters)
@@ -54,13 +55,17 @@ library(parameters)
 fram <- read_csv("fram.csv")
 fram <-
   fram %>%
-  rename(sex = SEX,
-         age = AGE,
-         sysbp = SYSBP,
-         cursmoke = CURSMOKE,
-         bmi = BMI) %>%
-  mutate(sex_fact = as.factor(sex),
-         cursmoke_fact = as.factor(cursmoke))
+  rename(
+    sex = SEX,
+    age = AGE,
+    sysbp = SYSBP,
+    cursmoke = CURSMOKE,
+    bmi = BMI
+  ) %>%
+  mutate(
+    sex_fact = as.factor(sex),
+    cursmoke_fact = as.factor(cursmoke)
+  )
 
 fram_mod <-
   fram %>%
@@ -69,9 +74,9 @@ fram_mod <-
 
 ## Model #1
 ```{r}
-#Fitting Linear Regression to the Model
+# Fitting Linear Regression to the Model
 lm_fit_fram <- lm(sysbp ~ age + sex_fact + cursmoke_fact + bmi, data = fram)
-#Summary Data
+# Summary Data
 summary(lm_fit_fram)
 model_parameters(lm_fit_fram, summary = TRUE)
 
@@ -98,11 +103,11 @@ fram_residuals <- tibble(residuals = lm_fit_fram$residuals)
 # Fitting the Linear Regression to the Data
 lm_fit_fram_mod <- lm(sysbp ~ age + sex_fact + cursmoke_fact + bmi, data = fram_mod)
 
-#Summary Data
+# Summary Data
 summary(lm_fit_fram_mod)
 model_parameters(lm_fit_fram_mod, summary = TRUE)
 
-#Summary Plots
+# Summary Plots
 plot(lm_fit_fram_mod)
 visreg(lm_fit_fram_mod)
 ```
@@ -113,7 +118,7 @@ visreg(lm_fit_fram_mod)
 - All of the above
 21) For a multiple linear regression model to be a good fit, we need the linearity assumption to hold for at least one of the predicting variables. 
 - False
-22) In multiple linear regression, we can assess the assumption of constant-variance by plotting the standardized residuals against fitted values. 
+22) In multiple linear regression, we can assess the assumption of constant-variance by plotting the standardized residuals against fitted values.
 - True 
 23) In multiple linear regression, we could diagnose the normality assumption by using the normal probability plot (qq plot). 
 - True 
@@ -126,10 +131,8 @@ visreg(lm_fit_fram_mod)
 27) In multiple linear regression, when using very large samples, relying on the p-values associated to the traditional hypothesis test with 𝐻1:𝛽𝑗≠0 can lead to misleading conclusions on the statistical significance of the regression coefficients. 
 - True
 
-
 # Problem #2
-
-```{r}
+```{r include=FALSE}
 library(tidymodels)
 library(tidyverse)
 tidymodels_prefer()
@@ -142,13 +145,15 @@ fishfull <- read_csv("fish.csv")
 # Initial Data Tidy
 fishfull <-
   fishfull %>%
-  rename(weight = Weight,
-         species = Species,
-         body_height = `Body Height`,
-         total_length = `Total Length`,
-         diagonal_length = `Diagonal Length`,
-         height = Height,
-         width = Width)
+  rename(
+    weight = Weight,
+    species = Species,
+    body_height = `Body Height`,
+    total_length = `Total Length`,
+    diagonal_length = `Diagonal Length`,
+    height = Height,
+    width = Width
+  )
 
 row_cnt <- nrow(fishfull)
 
@@ -170,26 +175,21 @@ fish <-
 ggplot(data = fish, aes(x = species, y = weight)) +
   geom_boxplot() +
   theme_dark()
-
 ggplot(data = fish, aes(x = body_height, y = weight)) +
-  geom_point() + 
-  see::theme_lucid()
-
+  geom_point() +
+  theme_dark()
 ggplot(data = fish, aes(x = total_length, y = weight)) +
-  geom_point() + 
-  see::theme_lucid()
-
+  geom_point() +
+  theme_dark()
 ggplot(data = fish, aes(x = diagonal_length, y = weight)) +
-  geom_point() + 
-  see::theme_lucid()
-
+  geom_point() +
+  theme_dark()
 ggplot(data = fish, aes(x = height, y = weight)) +
-  geom_point() + 
-  see::theme_lucid()
-
+  geom_point() +
+  theme_dark()
 ggplot(data = fish, aes(x = width, y = weight)) +
-  geom_point() + 
-  see::theme_lucid()
+  geom_point() +
+  theme_dark()
 
 fish_numeric <-
   fish %>%
@@ -201,21 +201,16 @@ round(cor(fish_numeric), digits = 3)
 ### Question 1: Exploratory Data Analysis
 a. Create a box plot comparing the response variable, Weight, across the multiple species. Based on this box plot, does there appear to be a relationship between the predictor and the response?
 - There does appear to be a relationship between the predictor and the variable with different species having different weights depending on what species they are. 
-
 b. Create plots of the response, Weight, against each quantitative predictor, namely Body.Height, Total.Length, Diagonal.Length, Height, and Width. Describe the general trend of each plot. Are there any potential outliers?
-
 - There general trend of each plot 
 c. Display the correlations between each of the variables. Interpret the correlations in the context of the relationships of the predictors to the response.
 - There is a reasonable correlation between each of the factors with the weakest being between Height and Weight and Height and its fellow predictors.
-
 d. Based on this exploratory analysis, is it reasonable to assume a multiple linear regression model for the relationship between Weight and the predictor variables?
-
 - Yes, it is reasonable to assume
-
 
 ## Model 1
 ```{r}
-#Recipe Creation for Tidy Models
+# Recipe Creation for Tidy Models
 model1_rec <-
   recipe(weight ~ ., data = fish) %>%
   step_dummy(all_nominal_predictors())
@@ -257,28 +252,22 @@ performance::check_model(model1_eng)
 ### Question 2: Fitting the Multiple Linear Regression Model
 a. Build a multiple linear regression model, called model1, using the response and all predictors. Display the summary table of the model.
 b. Is the overall regression significant at an 𝛼 level of 0.01?
-
-The overall f-test p-value is significant at a level of 0.01
-
+- The overall f-test p-value is significant at a level of 0.01
 c. What is the coefficient estimate for Body.Height? Interpret this coefficient.
 - The body height coefficient is -176.87 which all other predictors remaining constant predicts that an increase in body height will result in a decrease of 177 in weight in grams. It is also significant in this current model with a p-value of .005.
-
 d. What is the coefficient estimate for the Species category Parkki? Interpret this coefficient.
-
 - The coefficient for the Parkki species with the Bream being the standard fish is 79.34. This says that all things being equal, comparared to the weight of an equivalent Bream, the Parkki should be 79.34 grams heavier than the Bream. However, the p-value is .55 which states that the regressor may be equal to 0 statistically. The 95% confidence interval for the Parkki does contain 0 which supports the conclusion to not reject the null hypothesis.
 
 ### Question 3: Checking for Outliers
 a. Create a plot for the Cook’s Distances. Using a threshold Cook’s Distance of 1, identify the row numbers of any outliers.
 - The single outlier with Cooks distance > 1 is row 119 of the dataset. This is a particularly heavy Roach Fish.
-
 b. Remove the outlier(s) from the data set and create a new model, called model2, using all predictors with Weight as the response. Display the summary of this model.
-
 
 ## Model 2
 ```{r}
-fish2 <- fish[-119,]
+fish2 <- fish[-119, ]
 
-#Recipe Creation for Tidy Models
+# Recipe Creation for Tidy Models
 model2_rec <-
   recipe(weight ~ ., data = fish2) %>%
   step_dummy(all_nominal_predictors())
@@ -313,47 +302,42 @@ fish2_residuals <-
   bind_cols(fish2_fitted_values)
 
 performance::check_model(model2_eng)
-
 ```
 
 ## Plotting Standardized Residuals
 ```{r}
 # Plotting Std Residuals vs Regressors
 ggplot(data = fish2_residuals, aes(x = std_residuals, y = body_height)) +
-  geom_point() + 
-  see::theme_lucid()
+  geom_point() +
+  theme_dark()
 ggplot(data = fish2_residuals, aes(x = std_residuals, y = total_length)) +
-  geom_point() + 
-  see::theme_lucid()
+  geom_point() +
+  theme_dark()
 ggplot(data = fish2_residuals, aes(x = std_residuals, y = diagonal_length)) +
-  geom_point() + 
-  see::theme_lucid()
+  geom_point() +
+  theme_dark()
 ggplot(data = fish2_residuals, aes(x = std_residuals, y = height)) +
-  geom_point() + 
-  see::theme_lucid()
+  geom_point() +
+  theme_dark()
 ggplot(data = fish2_residuals, aes(x = std_residuals, y = width)) +
-  geom_point() + 
-  see::theme_lucid()
-
+  geom_point() +
+  theme_dark()
 ggplot(data = fish2_residuals, aes(x = fitted_values, y = std_residuals)) +
-  geom_point() + 
-  see::theme_lucid()
+  geom_point() +
+  theme_dark()
 # Histogram and QQ plot for Standardized Residuals
 ggplot(data = fish2_residuals, aes(x = std_residuals)) +
   geom_histogram(binwidth = .1)
 ggplot(data = fish2_residuals, aes(sample = std_residuals)) +
   geom_qq() +
   geom_abline(lty = 2)
-
 ```
 
 ### Question 4: Checking Model Assumptions
 a. Create scatterplots of the standardized residuals of model2 versus each quantitative predictor. Does the linearity assumption appear to hold for all predictors?
 - The scatter plots seem to show a non-linear relationship for the predictors with each having a rough funnel shape.
-
 b. Create a scatter plot of the standardized residuals of model2 versus the fitted values of model2. Does the constant variance assumption appear to hold?
 - The residuals vs the fitted values shows a rough u-shape which indicates a non-linear relationship. 
-
 c. Create a histogram and normal QQ plot for the standardized residuals. What conclusions can you draw from these plots?
 - The model does not fit the assumptions adequately of a multiple linear regression model. 
 
@@ -395,7 +379,7 @@ fish3_residuals <-
 performance::check_model(model3_eng)
 ```
 
-
+### Anova Partial F Test
 ```{r}
 anova(model2_eng, model3_eng)
 ```
@@ -408,11 +392,11 @@ b. Conduct a partial F-test comparing model3 with model2. What can you conclude 
 # Plotting Std Residuals vs Regressors
 
 ggplot(data = fish3_residuals, aes(x = std_residuals, y = total_length)) +
-  geom_point() + 
+  geom_point() +
   see::theme_lucid()
 
 ggplot(data = fish3_residuals, aes(x = fitted_values, y = std_residuals)) +
-  geom_point() + 
+  geom_point() +
   see::theme_lucid()
 
 # Histogram and QQ plot for Standardized Residuals
@@ -477,7 +461,6 @@ performance::check_model(model4_eng)
 ### Question 7: Transformation
 a. Use model3 to find the optimal lambda, rounded to the nearest 0.5, for a Box-Cox transformation on model3. What transformation, if any, should be applied according to the lambda value? Please ensure you use model3.
 - Lambda Value is equal to .4242 which rounds to .5 which means that weight should be transformed by sqrt.
-
 b. Based on the results in (a), create model4 with the appropriate transformation. Display the summary.
 - Displayed
 
@@ -485,12 +468,11 @@ b. Based on the results in (a), create model4 with the appropriate transformatio
 # Plotting Std Residuals vs Regressors
 
 ggplot(data = fish4_residuals, aes(x = std_residuals, y = total_length)) +
-  geom_point() + 
-  see::theme_lucid()
-
+  geom_point() +
+  theme_dark()
 ggplot(data = fish4_residuals, aes(x = fitted_values, y = std_residuals)) +
-  geom_point() + 
-  see::theme_lucid()
+  geom_point() +
+  theme_dark()
 
 # Histogram and QQ plot for Standardized Residuals
 ggplot(data = fish4_residuals, aes(x = std_residuals)) +
@@ -518,13 +500,13 @@ a. Using each model summary, compare and discuss the R-squared and Adjusted R-sq
 test_fish <- predict(model4, new_data = fishtest %>% select(-weight))
 test_fish <-
   test_fish %>%
-  transmute(predicted_values = .pred ^ 2)
+  transmute(predicted_values = .pred^2)
 
 test_fish <- bind_cols(test_fish, fishtest %>% select(weight))
 test_fish
 
-#This sets a function for Metric Sets and Assigns it to ames_metrics
-#ames_metrics is then called with the df, truth, and estimate to output the tibble.
+# This sets a function for Metric Sets and Assigns it to ames_metrics
+# ames_metrics is then called with the df, truth, and estimate to output the tibble.
 test_metrics <- metric_set(rmse, rsq, mae)
 test_metrics(test_fish, truth = weight, estimate = predicted_values)
 ```
