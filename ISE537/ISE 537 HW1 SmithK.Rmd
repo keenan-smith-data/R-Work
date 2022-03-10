@@ -2,11 +2,15 @@
 title: "ISE 537 Assignment 1"
 author: "Smith, Keenan"
 output: 
-  html_document: default
+  html_document:
+    theme:
+      bootswatch: pulse
 ---
 
 "Built with R Version `r getRversion()`"
-
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 # Section 1
 
 1.  The estimated simple linear regression coefficient 𝛽0, measures the strength of a linear relationship between the predicting and response variables.
@@ -56,7 +60,7 @@ Function for Regression Model source <https://sejohnston.com/2012/08/09/a-quick-
 
 ```{r label = 'Import and Functions'}
 # Importing machine.csv in a dplyr dataframe
-machine <- read_csv("machine.csv", show_col_types = FALSE)
+machine <- read_csv("data/machine.csv", show_col_types = FALSE)
 # Inspecting Dataframe to ensure good import
 head(machine)
 

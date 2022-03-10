@@ -5,9 +5,10 @@ date: "3/6/2022"
 output: 
   html_document:
     theme:
-      bootswatch: simplex
+      bootswatch: pulse
 ---
 
+"Built with R Version `r getRversion()`"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -49,10 +50,9 @@ library(visreg)
 library(parameters)
 ```
 
-
 ## Import Dataset and Tidy
 ```{r}
-fram <- read_csv("fram.csv")
+fram <- read_csv("data/fram.csv")
 fram <-
   fram %>%
   rename(
@@ -140,7 +140,7 @@ tidymodels_prefer()
 
 ## Import Dataset and Tidy
 ```{r}
-fishfull <- read_csv("fish.csv")
+fishfull <- read_csv("data/fish.csv")
 
 # Initial Data Tidy
 fishfull <-
@@ -325,6 +325,7 @@ ggplot(data = fish2_residuals, aes(x = std_residuals, y = width)) +
 ggplot(data = fish2_residuals, aes(x = fitted_values, y = std_residuals)) +
   geom_point() +
   theme_dark()
+
 # Histogram and QQ plot for Standardized Residuals
 ggplot(data = fish2_residuals, aes(x = std_residuals)) +
   geom_histogram(binwidth = .1)

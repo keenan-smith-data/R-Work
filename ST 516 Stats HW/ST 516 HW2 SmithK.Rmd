@@ -20,7 +20,7 @@ library(readr)
 
 ### Problem #1
 Use T-Distribution to Determine Confidence Intervals
-```{r}
+```{r Problem 1}
 speed <- c(24, 29, 23, 25, 24, 33, 26, 24, 29, 27, 26, 22, 32, 24, 21, 19, 29, 31, 26, 29, 31, 16)
 speed_means <- mean(speed)
 speed_sd <- sd(speed)
@@ -41,7 +41,7 @@ hist(speed)
 ```
 
 ### Problem #3
-```{r}
+```{r Problem 3}
 textbook_costs <- c(500, 650, 600, 505, 450, 550, 515, 495, 650, 395)
 textbook_mean <- mean(textbook_costs)
 textbook_sd <- sd(textbook_costs)
@@ -65,7 +65,7 @@ right_t_textbooks <- textbook_mean + error_t_textbooks
 
 ### Problem #4
 Determining the Correct Amount of Samples that need to be taken to achieve range of 5 dollars with 95% confidence
-```{r}
+```{r Problem 4}
 marketing_sd <- 12
 marketing_ME <- 5
 marketing_z_stat <- qnorm(0.975)
@@ -73,7 +73,7 @@ n_marketing <- ((marketing_z_stat * marketing_sd) / marketing_ME)^2
 ```
 
 ### Problem #5
-```{r}
+```{r Problem 5}
 salary_data <- read.csv("data/2013 ncaa tourney coaches salaries.csv")
 
 # print(head(salary_data))
@@ -86,6 +86,7 @@ total_pay_obs <- length(total_pay)
 error_tp <- qnorm(0.99) * total_pay_sd / sqrt(total_pay_obs)
 left_norm_tp <- total_pay_mean - error_tp
 right_norm_tp <- total_pay_mean + error_tp
+
 # T-Distribution for  98% Confidence Intervals
 error_t_tp <- qt(0.99, df = total_pay_obs - 1) * total_pay_sd / sqrt(total_pay_obs)
 left_t_tp <- total_pay_mean - error_t_tp
@@ -98,9 +99,9 @@ right_norm_tp
 ```
 
 ### Problem #5 Part 2 without Mike Krzyzewski data in total pay
-```{r}
+```{r Problem 5 Part 2}
 salary_data <- read.csv("data/2013 ncaa tourney coaches salaries.csv")
-# print(head(salary_data))
+
 total_pay <- salary_data$TOTAL.PAY
 total_pay <- total_pay[2:length(total_pay)]
 total_pay_mean <- mean(total_pay)
@@ -123,7 +124,7 @@ right_norm_tp
 ```
 
 ### Problem #6
-```{r}
+```{r Problem 6}
 student_debt <- read_csv("data/student debt North Carolina.csv", col_type = list(.default = col_guess()))
 print(student_debt)
 
@@ -136,13 +137,14 @@ student_debt_t_test
 ```
 
 ### Problem #7
-```{r}
+```{r Problem 7}
 soda_cans <- read.csv("data/soda cans per week.csv")
 soda_can_data <- soda_cans$ï..Cans
 big_n <- 28000
 soda_can_mean <- mean(soda_can_data)
 soda_can_sd <- sd(soda_can_data)
 soda_can_obs <- length(soda_can_data)
+
 # Normal Distribution
 error_soda <- qnorm(0.995) * soda_can_sd / sqrt(soda_can_obs)
 left_norm_soda <- soda_can_mean - error_soda
@@ -155,7 +157,7 @@ right_norm_big_soda
 
 
 ### Problem #9
-```{r}
+```{r Problem 9}
 exhaustion_mean <- 637
 exhaustion_sd <- 265
 exhaustion_obs <- 24
@@ -174,7 +176,7 @@ exh_p_value <- pt(-abs(exh_t), df = exhaustion_obs - 1)
 ```
 
 ### Problem #10
-```{r}
+```{r Problem 10}
 raisins <- c(1219, 1214, 1087, 1200, 1419, 1121, 1325, 1345, 1244, 1258, 1356, 1132, 1191, 1270, 1295, 1135)
 raisins_mean <- mean(raisins)
 raisins_sd <- sd(raisins)

@@ -18,7 +18,7 @@ library(tidyverse)
 ```
 
 ## Function Block
-```{r}
+```{r Function Block}
 confidence_interval <- function(vector, interval) {
   # Standard deviation of sample
   vec_sd <- sd(vector)

@@ -22,7 +22,7 @@ library(lubridate)
 ```
 
 ### Problem #1
-```{r}
+```{r Problem 1}
 xi <- 89457
 yi <- 340725
 yi2 <- 8451966400
@@ -41,7 +41,7 @@ Se
 ```
 
 ### Problem #2
-```{r}
+```{r Problem 2}
 # Import Data
 movies <- read_csv("data/King Kong.csv")
 
@@ -62,7 +62,7 @@ ggplot(movies, aes(x = budget, y = gross)) +
 ```
 
 ### Problem #3
-```{r}
+```{r Problem 3}
 # Import Data
 report_cards <- read_csv("data/wake county schools report card 2015-16.csv")
 
@@ -96,7 +96,7 @@ plot(lm_fit_report)
 ```
 
 ### Problem #4
-```{r}
+```{r Problem 4}
 # Import Data
 ice <- read_csv("data/nenana ice breakup.csv")
 
@@ -144,7 +144,7 @@ ggplot(ice_modified, aes(x = starting_year, y = day_number)) +
 ```
 
 ### Problem #5
-```{r}
+```{r Problem 5}
 college_access <- read_csv("data/College Access Index.csv")
 
 college_access_modified <-
@@ -186,7 +186,7 @@ ggplot(college_access_modified, aes(x = college_access_index, y = low_to_middle)
 ```
 
 ### Problem #6
-```{r}
+```{r Problem 6}
 reptile <- read_csv("data/REPTILE BRAIN BODY WEIGHTS.csv")
 mammal <- read_csv("data/mammals brain body mass.csv")
 
@@ -233,7 +233,7 @@ summary(lm_fit_reptile)
 ```
 
 ### Problem #7
-```{r}
+```{r Problem 7}
 beer <- read_csv("data/beer_BAC.csv")
 
 ggplot(beer, aes(x = Beers, y = BAC)) +
@@ -264,7 +264,7 @@ SSE <- sum(lm_fit_beer$residuals**2)
 
 ### Problem #8 
 <https://rpubs.com/aaronsc32/regression-confidence-prediction-intervals>
-```{r}
+```{r Problem 8}
 bodyfat <- read_csv("data/bodyfat.csv")
 
 bodyfat_modified <-
@@ -289,7 +289,7 @@ predict(lm_fit_bodyfat, newdata = prediction_waist, interval = "prediction")
 ```
 
 ### Problem #9
-```{r}
+```{r Problem 9}
 votes <- read_csv("data/Votes.csv")
 votes
 
@@ -307,7 +307,7 @@ predict(lm_fit_votes, newdata = prediction_gore, interval = "prediction", level 
 ```
 
 ### Problem #10
-```{r}
+```{r Problem 10}
 teams <- read_csv("data/top 50 metro area by pop inc pop percapinc profranch.csv")
 
 teams_modified <-
@@ -383,7 +383,7 @@ teams_modified %>%
 ```
 
 ### Problem #11
-```{r}
+```{r Problem 11}
 satact <- read_csv("data/SAT_ACT.csv")
 satact <-
   satact %>%
@@ -445,7 +445,7 @@ z_score_2
 ```
 
 ### Problem #12
-```{r}
+```{r Problem 12}
 blood <- read_csv("data/blood test human age.csv")
 
 blood_mod <-
