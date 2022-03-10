@@ -20,15 +20,17 @@ library(MASS)
 
 
 ## Problem 1
-```{r label = Problem 1}
+```{r Problem 1}
 plywood <- read_csv("wood chip plywood.csv", show_col_types = FALSE)
 
 # Tidy and Transform Data
 plywood <-
   plywood %>%
-  rename(glue = Glue,
-         breaking_point = `Breaking Point`) %>%
-  mutate(glue_squared = glue ^ 2, glue_cubed = glue ^ 3)
+  rename(
+    glue = Glue,
+    breaking_point = `Breaking Point`
+  ) %>%
+  mutate(glue_squared = glue^2, glue_cubed = glue^3)
 
 bc_plywood <- boxcox(breaking_point ~ glue, data = plywood)
 lambda_plywood <- bc_plywood$x[which.max(bc_plywood$y)]
@@ -45,7 +47,7 @@ y_p <- 110
 # Create New Intercept term to create 0 to solve for roots
 new_intercept_p <- intercept_p - y_p
 # Solve for Polynomial Equation
-polyroot(c(new_intercept_p,beta1_p,beta2_p,beta3_p))
+polyroot(c(new_intercept_p, beta1_p, beta2_p, beta3_p))
 
 # Summary Stats
 summary(lm_fit_plywood)
@@ -55,15 +57,17 @@ visreg::visreg(lm_fit_plywood)
 ```
 
 ## Problem 2
-```{r label = Problem 2}
+```{r Problem 2}
 bk <- read_csv("Burger_King_nutrition.csv", show_col_types = FALSE)
 bk <-
   bk %>%
-  rename(calories = Calories,
-         protein = Protein,
-         total_fat = `Total Fat`,
-         carbs = Carbs,
-         sodium = `Na S`)
+  rename(
+    calories = Calories,
+    protein = Protein,
+    total_fat = `Total Fat`,
+    carbs = Carbs,
+    sodium = `Na S`
+  )
 
 bk_model <- lm(calories ~ ., data = bk)
 
@@ -77,19 +81,20 @@ triple_whopper_cals
 
 fat_coef <- as.numeric(bk_model$coefficients[3])
 2 * fat_coef
-
 ```
 
 ## Problem 3
-```{r label = Problem 3}
+```{r Problem 3}
 states <- read_csv("state_demographics.csv", show_col_types = FALSE)
 states <-
   states %>%
-  rename(state_name = `State Name`,
-         murder = Murder,
-         hs_grad = `HS Grad`,
-         income = Income,
-         life_exp = `Life Expectancy`)
+  rename(
+    state_name = `State Name`,
+    murder = Murder,
+    hs_grad = `HS Grad`,
+    income = Income,
+    life_exp = `Life Expectancy`
+  )
 states_model <- lm(life_exp ~ murder + hs_grad + income, data = states)
 
 anova(states_model)
@@ -103,7 +108,7 @@ nc_life_exp
 ```
 
 ## Problem 4
-```{r label = Problem 4}
+```{r Problem 4}
 roller_coaster <- read_csv("roller coaster data.csv", show_col_types = FALSE)
 roller_coaster <-
   roller_coaster %>%
@@ -123,23 +128,27 @@ summary(coaster_model)
 ```
 
 ## Problem 5
-```{r label = Problem 5}
+```{r Problem 5}
 cereal <- read_csv("cereals_mult_regress.csv")
- 
+
 cereal <-
   cereal %>%
-  rename(name = Name,
-         mfr = Mfr,
-         cal = Calories,
-         sugar = Sugars,
-         carb = Carbo,
-         protein = Protein,
-         fat = Fat,
-         sodium = Sodium,
-         potass = Potass,
-         shelf = Shelf) %>%
-  mutate(mfr = as.factor(mfr),
-         shelf = as.factor(shelf))
+  rename(
+    name = Name,
+    mfr = Mfr,
+    cal = Calories,
+    sugar = Sugars,
+    carb = Carbo,
+    protein = Protein,
+    fat = Fat,
+    sodium = Sodium,
+    potass = Potass,
+    shelf = Shelf
+  ) %>%
+  mutate(
+    mfr = as.factor(mfr),
+    shelf = as.factor(shelf)
+  )
 cereal_model <- lm(cal ~ sugar + carb + protein + fat, data = cereal)
 summary(cereal_model)
 
@@ -150,25 +159,25 @@ choco_predict
 ```
 
 ## Problem 6
-```{r label = Problem 6}
-
-
+```{r Problem 6}
 
 ```
 
 ## Problem 7
-```{r label = Problem 7}
+```{r Problem 7}
 pizza <- read_csv("pizza_ratings.csv", show_col_types = FALSE)
 
 pizza <-
   pizza %>%
-  rename(brand = Brand,
-         score = Score,
-         cost = Cost,
-         calories = Calories,
-         fat = Fat,
-         type = Type,
-         type_cals = `Type*Calories`) %>%
+  rename(
+    brand = Brand,
+    score = Score,
+    cost = Cost,
+    calories = Calories,
+    fat = Fat,
+    type = Type,
+    type_cals = `Type*Calories`
+  ) %>%
   mutate(type = as.factor(type))
 
 pizza_model <- lm(score ~ calories + fat + type + type_cals, data = pizza)
@@ -176,7 +185,7 @@ pizza_residuals <- tibble(residuals = pizza_model$residuals)
 pizza <-
   pizza %>%
   bind_cols(pizza_residuals)
-pizza_model2 <- lm(score ~ type*calories + fat, data = pizza)
+pizza_model2 <- lm(score ~ type * calories + fat, data = pizza)
 summary(pizza_model2)
 
 cheese_1 <- tibble(calories = 100, fat = 10, type = as.factor(1))
@@ -190,21 +199,25 @@ cheese_difference
 ```
 
 ## Problem 8
-```{r label = Problem 8}
+```{r Problem 8}
 start_salary <- read_csv("median start salary by school type.csv", show_col_types = FALSE)
 
 start_salary <-
   start_salary %>%
-  rename(school_name = `School Name`,
-         starting_salary = `Starting Median Salary`,
-         state = State,
-         party = Party,
-         ivy = `Ivy League`,
-         engineering = Engineering) %>%
-  mutate(state = as.factor(state),
-         party = as.factor(party),
-         ivy = as.factor(ivy),
-         engineering = as.factor(engineering))
+  rename(
+    school_name = `School Name`,
+    starting_salary = `Starting Median Salary`,
+    state = State,
+    party = Party,
+    ivy = `Ivy League`,
+    engineering = Engineering
+  ) %>%
+  mutate(
+    state = as.factor(state),
+    party = as.factor(party),
+    ivy = as.factor(ivy),
+    engineering = as.factor(engineering)
+  )
 
 salary_model <- lm(starting_salary ~ state + party + ivy + engineering, data = start_salary)
 summary(salary_model)
@@ -212,7 +225,7 @@ summary(salary_model)
 
 
 ## Problem 9
-```{r label = Problem 9}
+```{r Problem 9}
 regression_analysis <- read_csv("Homer Simpson multiple regress.csv", show_col_types = FALSE)
 
 model1 <- lm(Y ~ ., data = regression_analysis)
