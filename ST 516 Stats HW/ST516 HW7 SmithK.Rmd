@@ -7,21 +7,21 @@ output:
     theme:
       bootswatch: pulse
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Library Initialize
-```{r}
+"Built with R Version `r getRversion()`"
+
+
+```{r Library Initiate, include=FALSE}
 library(tidyverse)
 library(MASS)
 ```
 
-
 ## Problem 1
 ```{r Problem 1}
-plywood <- read_csv("wood chip plywood.csv", show_col_types = FALSE)
+plywood <- read_csv("data/wood chip plywood.csv", show_col_types = FALSE)
 
 # Tidy and Transform Data
 plywood <-
@@ -58,7 +58,7 @@ visreg::visreg(lm_fit_plywood)
 
 ## Problem 2
 ```{r Problem 2}
-bk <- read_csv("Burger_King_nutrition.csv", show_col_types = FALSE)
+bk <- read_csv("data/Burger_King_nutrition.csv", show_col_types = FALSE)
 bk <-
   bk %>%
   rename(
@@ -85,7 +85,7 @@ fat_coef <- as.numeric(bk_model$coefficients[3])
 
 ## Problem 3
 ```{r Problem 3}
-states <- read_csv("state_demographics.csv", show_col_types = FALSE)
+states <- read_csv("data/state_demographics.csv", show_col_types = FALSE)
 states <-
   states %>%
   rename(
@@ -109,7 +109,7 @@ nc_life_exp
 
 ## Problem 4
 ```{r Problem 4}
-roller_coaster <- read_csv("roller coaster data.csv", show_col_types = FALSE)
+roller_coaster <- read_csv("data/roller coaster data.csv", show_col_types = FALSE)
 roller_coaster <-
   roller_coaster %>%
   mutate(invert_fact = as.factor(Invert))
@@ -129,7 +129,7 @@ summary(coaster_model)
 
 ## Problem 5
 ```{r Problem 5}
-cereal <- read_csv("cereals_mult_regress.csv")
+cereal <- read_csv("data/cereals_mult_regress.csv")
 
 cereal <-
   cereal %>%
@@ -158,14 +158,9 @@ choco_predict <- predict(cereal_model, newdata = choco)
 choco_predict
 ```
 
-## Problem 6
-```{r Problem 6}
-
-```
-
 ## Problem 7
 ```{r Problem 7}
-pizza <- read_csv("pizza_ratings.csv", show_col_types = FALSE)
+pizza <- read_csv("data/pizza_ratings.csv", show_col_types = FALSE)
 
 pizza <-
   pizza %>%
@@ -200,7 +195,7 @@ cheese_difference
 
 ## Problem 8
 ```{r Problem 8}
-start_salary <- read_csv("median start salary by school type.csv", show_col_types = FALSE)
+start_salary <- read_csv("data/median start salary by school type.csv", show_col_types = FALSE)
 
 start_salary <-
   start_salary %>%
@@ -226,7 +221,7 @@ summary(salary_model)
 
 ## Problem 9
 ```{r Problem 9}
-regression_analysis <- read_csv("Homer Simpson multiple regress.csv", show_col_types = FALSE)
+regression_analysis <- read_csv("data/Homer Simpson multiple regress.csv", show_col_types = FALSE)
 
 model1 <- lm(Y ~ ., data = regression_analysis)
 summary(model1)

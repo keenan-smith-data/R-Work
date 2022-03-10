@@ -1,25 +1,27 @@
 ---
 title: 'ST516 Homework #5'
 author: "Keenan T. Smith"
-output:
+output: 
   html_document:
-    df_print: paged
+    theme:
+      bootswatch: pulse
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+"Built with R Version `r getRversion()`"
 
 Links Used:
 <https://www.learnbymarketing.com/tutorials/explaining-the-lm-summary-in-r/>
 <https://rpubs.com/aaronsc32/regression-confidence-prediction-intervals>
 
-
-Package Load
-```{r}
+```{r Library Initiate, include=FALSE}
 library(tidyverse)
 library(lubridate)
 ```
 
-Problem #1
+### Problem #1
 ```{r}
 xi <- 89457
 yi <- 340725
@@ -34,23 +36,21 @@ SSE <- yi2 - b0 * yi - b1 * xyi
 
 SSE
 
-Se <- sqrt(SSE/(n1 - 2))
+Se <- sqrt(SSE / (n1 - 2))
 Se
 ```
 
-
-
-Problem #2
+### Problem #2
 ```{r}
-#Import Data
-movies <- read_csv("King Kong.csv")
+# Import Data
+movies <- read_csv("data/King Kong.csv")
 
 movies <- movies %>%
   rename(budget = `Budget($mill)`, gross = `USGross($mill)`)
 
 movies %>%
   transmute(Movie = Movie, budget = budget, gross = gross, difference = gross - budget) %>%
-  arrange(difference) 
+  arrange(difference)
 
 lm_fit_movies <- lm(gross ~ budget, data = movies)
 
@@ -61,10 +61,10 @@ ggplot(movies, aes(x = budget, y = gross)) +
   geom_smooth(method = "lm", se = FALSE)
 ```
 
-Problem #3
+### Problem #3
 ```{r}
-#Import Data
-report_cards <- read_csv("wake county schools report card 2015-16.csv")
+# Import Data
+report_cards <- read_csv("data/wake county schools report card 2015-16.csv")
 
 report_cards %>%
   arrange(desc(GRADELEVEL), desc(LUNCH))
@@ -80,7 +80,7 @@ lm_fit_report <- lm(GRADELEVEL ~ LUNCH, data = report_cards)
 
 summary(lm_fit_report)
 
-lm_var <- lm_fit_report$coefficients 
+lm_var <- lm_fit_report$coefficients
 
 # Amount Decreased Per 15% Rise
 fifteen_or_less <- lm_var[2] * 15
@@ -93,20 +93,18 @@ ggplot(report_cards, aes(x = LUNCH, y = GRADELEVEL)) +
 objects(lm_fit_report)
 
 plot(lm_fit_report)
-
-
 ```
 
-Problem #4
+### Problem #4
 ```{r}
-#Import Data
-ice <- read_csv("nenana ice breakup.csv")
+# Import Data
+ice <- read_csv("data/nenana ice breakup.csv")
 
 year_2021 <- 2021
 year_2021 <- ymd(year_2021, truncated = 2L)
 
 ice_modified <- ice %>%
-  select(-c(`...5`,`...6`)) %>%
+  select(-c(`...5`, `...6`)) %>%
   rename(starting_year = `Year (since 1900)`, day_number = `Day Number`) %>%
   mutate(year_start = ymd(Year, truncated = 2L), date_total = as_datetime(year_start + day_number)) %>%
   filter(Year != 2021)
@@ -129,7 +127,7 @@ prediction_tibble <-
   mutate(year_start = ymd(Year, truncated = 2L), date_total = as_datetime(year_start + day_number))
 
 actual_tibble <- ice %>%
-  select(-c(`...5`,`...6`)) %>%
+  select(-c(`...5`, `...6`)) %>%
   rename(starting_year = `Year (since 1900)`, day_number = `Day Number`) %>%
   mutate(year_start = ymd(Year, truncated = 2L), date_total = as_datetime(year_start + day_number)) %>%
   filter(Year == 2021)
@@ -145,19 +143,21 @@ ggplot(ice_modified, aes(x = starting_year, y = day_number)) +
   geom_smooth(method = "lm", se = FALSE)
 ```
 
-Problem #5
+### Problem #5
 ```{r}
-college_access <- read_csv("College Access Index.csv")
+college_access <- read_csv("data/College Access Index.csv")
 
-college_access_modified <- 
+college_access_modified <-
   college_access %>%
-  rename(college = `College`,
-         pell_2012_2014 = `Pell (2012-2014)`,
-         pell_2008 = `Pell (2008)`,
-         pell_change = `Pell change`,
-         low_to_middle = `Net price, low- to middle-income`,
-         college_access_index = `College Access Index`,
-         endowment_per_student = `Endowment per student`) %>%
+  rename(
+    college = `College`,
+    pell_2012_2014 = `Pell (2012-2014)`,
+    pell_2008 = `Pell (2008)`,
+    pell_change = `Pell change`,
+    low_to_middle = `Net price, low- to middle-income`,
+    college_access_index = `College Access Index`,
+    endowment_per_student = `Endowment per student`
+  ) %>%
   mutate(row = row_number())
 
 summary(college_access_modified)
@@ -174,7 +174,7 @@ summary(lm_fit_college_access)
 
 residuals_ca <- tibble(residuals = lm_fit_college_access$residuals)
 
-college_access_modified <- 
+college_access_modified <-
   college_access_modified %>%
   bind_cols(residuals_ca)
 
@@ -185,27 +185,31 @@ ggplot(college_access_modified, aes(x = college_access_index, y = low_to_middle)
   geom_smooth(method = "lm", se = FALSE)
 ```
 
-Problem #6
+### Problem #6
 ```{r}
-reptile <- read_csv("REPTILE BRAIN BODY WEIGHTS.csv")
-mammal <- read_csv("mammals brain body mass.csv")
+reptile <- read_csv("data/REPTILE BRAIN BODY WEIGHTS.csv")
+mammal <- read_csv("data/mammals brain body mass.csv")
 
-reptile_modified <- 
+reptile_modified <-
   reptile %>%
-  rename(species = Species,
-         body_mass = `Body mass (kg)`,
-         brain_mass = `Brain mass (g)`,
-         log_body_mass = `Log10 Body mass (kg)`,
-         log_brain_mass = `Log10 Brain mass (g)`) %>%
+  rename(
+    species = Species,
+    body_mass = `Body mass (kg)`,
+    brain_mass = `Brain mass (g)`,
+    log_body_mass = `Log10 Body mass (kg)`,
+    log_brain_mass = `Log10 Brain mass (g)`
+  ) %>%
   mutate(row = row_number())
 
-mammal_modified <- 
+mammal_modified <-
   mammal %>%
-  rename(species = Species,
-         body_mass = `Body mass(kg)`,
-         brain_mass = `Brain mass (g)`,
-         log_body_mass = `log(10)Body mass (kg)`,
-         log_brain_mass = `log(10)Brain mass (g)`) %>%
+  rename(
+    species = Species,
+    body_mass = `Body mass(kg)`,
+    brain_mass = `Brain mass (g)`,
+    log_body_mass = `log(10)Body mass (kg)`,
+    log_brain_mass = `log(10)Brain mass (g)`
+  ) %>%
   mutate(row = row_number())
 
 lm_fit_reptile <- lm(log_brain_mass ~ log_body_mass, data = reptile_modified)
@@ -221,17 +225,16 @@ prediction_godzilla <- predict(lm_fit_reptile, newdata = godzilla)
 log_king_kong <- as.numeric(prediction_king_kong)
 log_godzilla <- as.numeric(prediction_godzilla)
 
-king_kong_brain_size <- 10 ^ log_king_kong
-godzilla_brain_size <- 10 ^ log_godzilla
+king_kong_brain_size <- 10^log_king_kong
+godzilla_brain_size <- 10^log_godzilla
 
 summary(lm_fit_mammal)
 summary(lm_fit_reptile)
-
 ```
 
-Problem #7
+### Problem #7
 ```{r}
-beer <- read_csv("beer_BAC.csv")
+beer <- read_csv("data/beer_BAC.csv")
 
 ggplot(beer, aes(x = Beers, y = BAC)) +
   geom_point() +
@@ -242,38 +245,41 @@ summary(lm_fit_beer)
 plot(lm_fit_beer)
 
 tstat_p5 <- abs(qt(.05, df = 14))
-#Residual Standard error (Like Standard Deviation)
-k=length(lm_fit_beer$coefficients)-1 #Subtract one to ignore intercept
-SSE=sum(lm_fit_beer$residuals**2)
-n=length(lm_fit_beer$residuals)
-Se = sqrt(SSE/(n-(1+k))) #Residual Standard Error
+# Residual Standard error (Like Standard Deviation)
+k <- length(lm_fit_beer$coefficients) - 1 # Subtract one to ignore intercept
+SSE <- sum(lm_fit_beer$residuals**2)
+n <- length(lm_fit_beer$residuals)
+Se <- sqrt(SSE / (n - (1 + k))) # Residual Standard Error
 # Standard Deviation of Predictor
-Sx = sd(beer$Beers)
+Sx <- sd(beer$Beers)
 # Standard Deviation of Beta 1
-Sb1 = Se / (sqrt(n-1) * Sx) #Standard Deviation of Predictor in Model
-#Multiple R-Squared (Coefficient of Determination)
-SSyy=sum((beer$BAC-mean(beer$BAC))**2)
-SSE=sum(lm_fit_beer$residuals**2)
-(SSyy-SSE)/SSyy
-#Adjusted R-Squared
-1-(SSE/SSyy)*(n-1)/(n-(k+1))
+Sb1 <- Se / (sqrt(n - 1) * Sx) # Standard Deviation of Predictor in Model
+# Multiple R-Squared (Coefficient of Determination)
+SSyy <- sum((beer$BAC - mean(beer$BAC))**2)
+SSE <- sum(lm_fit_beer$residuals**2)
+(SSyy - SSE) / SSyy
+# Adjusted R-Squared
+1 - (SSE / SSyy) * (n - 1) / (n - (k + 1))
 ```
 
-Problem #8 <https://rpubs.com/aaronsc32/regression-confidence-prediction-intervals>
+### Problem #8 
+<https://rpubs.com/aaronsc32/regression-confidence-prediction-intervals>
 ```{r}
-bodyfat <- read_csv("bodyfat.csv")
+bodyfat <- read_csv("data/bodyfat.csv")
 
-bodyfat_modified <- 
+bodyfat_modified <-
   bodyfat %>%
-  rename(waist = `Waist (in.)`,
-         weight = `Weight (lb)`,
-         body_fat = `Body Fat (%)`)
+  rename(
+    waist = `Waist (in.)`,
+    weight = `Weight (lb)`,
+    body_fat = `Body Fat (%)`
+  )
 bodyfat_modified
 
 lm_fit_bodyfat <- lm(body_fat ~ waist, data = bodyfat_modified)
 summary(lm_fit_bodyfat)
 
-prediction_waist = tibble(waist = 40)
+prediction_waist <- tibble(waist = 40)
 # Confidence Intervals for Beta 1 slope
 confint(lm_fit_bodyfat, level = 0.90)
 # Confidence Interval for predicted 40 in waist
@@ -282,61 +288,63 @@ predict(lm_fit_bodyfat, newdata = prediction_waist, interval = "confidence")
 predict(lm_fit_bodyfat, newdata = prediction_waist, interval = "prediction")
 ```
 
-Problem #9
+### Problem #9
 ```{r}
-votes <- read_csv("Votes.csv")
+votes <- read_csv("data/Votes.csv")
 votes
 
-votes_no_palm_beach <- 
+votes_no_palm_beach <-
   votes %>%
   filter(COUNTY != "Palm Beach" & COUNTY != "TOTAL")
 
 lm_fit_votes <- lm(Buchanan ~ Gore, data = votes_no_palm_beach)
-lm_fit_votes$coefficients[2]*10000
+lm_fit_votes$coefficients[2] * 10000
 summary(lm_fit_votes)
 
 cor(votes_no_palm_beach$Gore, votes_no_palm_beach$Buchanan)
-prediction_gore = tibble(Gore = 268945)
+prediction_gore <- tibble(Gore = 268945)
 predict(lm_fit_votes, newdata = prediction_gore, interval = "prediction", level = .99)
 ```
 
-Problem #10
+### Problem #10
 ```{r}
-teams <- read_csv("top 50 metro area by pop inc pop percapinc profranch.csv")
+teams <- read_csv("data/top 50 metro area by pop inc pop percapinc profranch.csv")
 
-teams_modified <- 
+teams_modified <-
   teams %>%
-  rename(rank = Rank,
-         metro_geoname = `Metro GeoName`,
-         personal_income = `Total Metro Personal Income 2020 (000s)`,
-         per_capita = `Per Capita Personal Income 2020`,
-         population_mil = `Population 2020 (millions)`,
-         num_teams = `# of NFL, NBA, MLB, NHL teams`)
+  rename(
+    rank = Rank,
+    metro_geoname = `Metro GeoName`,
+    personal_income = `Total Metro Personal Income 2020 (000s)`,
+    per_capita = `Per Capita Personal Income 2020`,
+    population_mil = `Population 2020 (millions)`,
+    num_teams = `# of NFL, NBA, MLB, NHL teams`
+  )
 
 teams_modified
 
 lm_fit_teams <- lm(num_teams ~ population_mil, data = teams_modified)
 summary(lm_fit_teams)
 
-#Residual Standard error (Like Standard Deviation)
-k=length(lm_fit_teams$coefficients)-1 #Subtract one to ignore intercept
-SSE=sum(lm_fit_teams$residuals**2)
+# Residual Standard error (Like Standard Deviation)
+k <- length(lm_fit_teams$coefficients) - 1 # Subtract one to ignore intercept
+SSE <- sum(lm_fit_teams$residuals**2)
 SSE
-n=length(lm_fit_teams$residuals)
-Se = sqrt(SSE/(n-(1+k))) #Residual Standard Error
+n <- length(lm_fit_teams$residuals)
+Se <- sqrt(SSE / (n - (1 + k))) # Residual Standard Error
 Se
 # Standard Deviation of Predictor
-Sx = sd(teams_modified$population_mil)
+Sx <- sd(teams_modified$population_mil)
 Sx
 # Standard Deviation of Beta 1
-Sb1 = Se / (sqrt(n-1) * Sx) #Standard Deviation of Predictor in Model
+Sb1 <- Se / (sqrt(n - 1) * Sx) # Standard Deviation of Predictor in Model
 Sb1
-#Multiple R-Squared (Coefficient of Determination)
-SSyy=sum((teams_modified$num_teams-mean(teams_modified$num_teams))**2)
-SSE=sum(lm_fit_beer$residuals**2)
-(SSyy-SSE)/SSyy
-#Adjusted R-Squared
-1-(SSE/SSyy)*(n-1)/(n-(k+1))
+# Multiple R-Squared (Coefficient of Determination)
+SSyy <- sum((teams_modified$num_teams - mean(teams_modified$num_teams))**2)
+SSE <- sum(lm_fit_beer$residuals**2)
+(SSyy - SSE) / SSyy
+# Adjusted R-Squared
+1 - (SSE / SSyy) * (n - 1) / (n - (k + 1))
 
 tstat_p10 <- abs(qt(.05, df = 48))
 tstat_p10
@@ -355,7 +363,7 @@ mean_one_team <- mean(teams_one$population_mil)
 
 second_team <- 2
 
-one_team <-  1
+one_team <- 1
 
 one_teams <- (one_team - teams_intercepts) / teams_slope
 
@@ -366,17 +374,17 @@ two_teams - one_teams
 ggplot(teams_modified, aes(x = population_mil, y = num_teams)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
-  scale_x_continuous(breaks = seq(0,20, by = 1)) +
-  scale_y_continuous(breaks = seq(0,10, by = 1))
+  scale_x_continuous(breaks = seq(0, 20, by = 1)) +
+  scale_y_continuous(breaks = seq(0, 10, by = 1))
 
 teams_modified %>%
   arrange(num_teams, desc(population_mil)) %>%
   filter(num_teams == 4)
 ```
 
-Problem #11
+### Problem #11
 ```{r}
-satact <- read_csv("SAT_ACT.csv")
+satact <- read_csv("data/SAT_ACT.csv")
 satact <-
   satact %>%
   filter(!is.na(SAT))
@@ -414,7 +422,7 @@ ratio_sd
 
 cor(satact$SAT, satact$ACT)
 
-#Question 5
+# Question 5
 sd_sat <- sd(satact$SAT)
 mean_sat <- mean(satact$SAT)
 
@@ -436,14 +444,16 @@ z_score_2 <- (pred_act_1below - mean_act) / sd_act
 z_score_2
 ```
 
-Problem #12
+### Problem #12
 ```{r}
-blood <- read_csv("blood test human age.csv")
+blood <- read_csv("data/blood test human age.csv")
 
 blood_mod <-
   blood %>%
-  rename(blood_test = `Blood Test Measure`,
-         age = `Age in Years`)
+  rename(
+    blood_test = `Blood Test Measure`,
+    age = `Age in Years`
+  )
 blood_mod
 
 lm_fit_blood <- lm(age ~ blood_test, data = blood_mod)
@@ -452,6 +462,4 @@ summary(lm_fit_blood)
 pred_blood <- tibble(blood_test = -14.2)
 
 predict(lm_fit_blood, newdata = pred_blood, interval = "prediction")
-
 ```
-

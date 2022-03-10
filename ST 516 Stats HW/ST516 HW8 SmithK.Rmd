@@ -2,45 +2,38 @@
 title: "ST516 HW8"
 author: "Keenan Smith"
 date: "3/9/2022"
-output:
-  word_document: default
-  html_document: default
+output: 
+  html_document:
+    theme:
+      bootswatch: pulse
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, include=FALSE}
+```{r Library Initiate, include=FALSE}
 library(tidyverse)
 library(parameters)
 ```
 
-```{r}
-model_analysis <- function(model) {
-  summary(model)
-  plot(model)
-  visreg::visreg(model)
-  parameters::model_parameters(model)
-  performance::check_model(model)
-  performance::check_collinearity(model)
-}
-```
-
-
-```{r Problem 2, include=FALSE}
-movies <- read_csv("movies.csv", show_col_types = FALSE)
+### Problem 2
+```{r Problem 2}
+movies <- read_csv("data/movies.csv", show_col_types = FALSE)
 movies <-
   movies %>%
-  rename(movie = Movie,
-         gross = `USGross($)`,
-         budget = `Budget($)`,
-         stars = Stars,
-         rating = Rating,
-         genre = Genre,
-         run_time = `Run Time (minutes)`) %>%
-  mutate(rating = as.factor(rating),
-         genre = as.factor(genre))
+  rename(
+    movie = Movie,
+    gross = `USGross($)`,
+    budget = `Budget($)`,
+    stars = Stars,
+    rating = Rating,
+    genre = Genre,
+    run_time = `Run Time (minutes)`
+  ) %>%
+  mutate(
+    rating = as.factor(rating),
+    genre = as.factor(genre)
+  )
 
 movies_r_pg13 <-
   movies %>%
@@ -50,7 +43,7 @@ movies_model <- lm(gross ~ budget * rating, data = movies_r_pg13)
 summary(movies_model)
 plot(movies_model)
 
-movies_r_nkk <- movies_r_pg13[-90,]
+movies_r_nkk <- movies_r_pg13[-90, ]
 
 movies_model_adj <- lm(gross ~ budget * rating, data = movies_r_nkk)
 
@@ -69,22 +62,26 @@ r_difference
 ## Problem #4
 ```{r Problem 4}
 # Import Data Step
-dirt_bike <- read_csv("dirt_bikes.csv", show_col_types = FALSE)
+dirt_bike <- read_csv("data/dirt_bikes.csv", show_col_types = FALSE)
 # Tidy and Modify Data Step w/o categorical engine stroke
 dirt_bike <-
   dirt_bike %>%
-  rename(model = Model,
-         manufacturer = Manufacturer,
-         color = Color,
-         msrp = MSRP,
-         engine_stroke = `Engine Stroke`,
-         displacement = Displacement,
-         bore = Bore,
-         wheelbase = Wheelbase,
-         clearance = Clearance,
-         total_weight = `Total Weight`) %>%
-  mutate(manufacturer = as.factor(manufacturer),
-         color = as.factor(color)) %>%
+  rename(
+    model = Model,
+    manufacturer = Manufacturer,
+    color = Color,
+    msrp = MSRP,
+    engine_stroke = `Engine Stroke`,
+    displacement = Displacement,
+    bore = Bore,
+    wheelbase = Wheelbase,
+    clearance = Clearance,
+    total_weight = `Total Weight`
+  ) %>%
+  mutate(
+    manufacturer = as.factor(manufacturer),
+    color = as.factor(color)
+  ) %>%
   arrange(desc(engine_stroke))
 
 # Create Dataframe for categorical engine stroke
@@ -95,15 +92,12 @@ dirt_bike_mod <-
 # Model for Non-categorical Engine Stroke
 model_dirt_bike <- lm(msrp ~ bore + clearance + engine_stroke + total_weight + wheelbase, data = dirt_bike)
 summary(model_dirt_bike)
-# visreg::visreg(model_dirt_bike)
 plot(model_dirt_bike)
 
 # Model for Adding Displacement
 model_dirt_disp <- lm(msrp ~ bore + clearance + engine_stroke + total_weight + wheelbase + displacement, data = dirt_bike)
 summary(model_dirt_disp)
-# visreg::visreg(model_dirt_disp)
 plot(model_dirt_disp)
-anova(model_dirt_disp)
 
 # Calculating VIF for the Displacement Model
 car::vif(model_dirt_disp)
@@ -112,6 +106,4 @@ car::vif(model_dirt_bike_factor)
 model_dirt_bike_factor <- lm(msrp ~ bore + clearance + engine_stroke + total_weight + wheelbase, data = dirt_bike_mod)
 summary(model_dirt_bike_factor)
 visreg::visreg(model_dirt_bike_factor)
-
 ```
-

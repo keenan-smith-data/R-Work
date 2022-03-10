@@ -1,10 +1,17 @@
 ---
 title: "ST516 HW6 SmithK"
-output: html_notebook
+output: 
+  html_document:
+    theme:
+      bootswatch: pulse
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
+"Built with R Version `r getRversion()`"
 
-```{r}
+```{r Library Initiate, include=FALSE}
 library(tidyverse)
 library(lubridate)
 library(MASS)
@@ -60,7 +67,7 @@ prediction_braking_transformed
 
 Problem #2
 ```{r}
-moores_law <- read_csv("Moores law.csv")
+moores_law <- read_csv("data/Moores law.csv")
 
 
 moores_law_transform <-
@@ -106,7 +113,7 @@ percent_dif <- (((year_two) - (year_one)) / (year_one)) * 100
 
 Problem #3
 ```{r}
-flu_data <- read_csv("bird_flu_webassign.csv")
+flu_data <- read_csv("data/bird_flu_webassign.csv")
 
 # Original Tidy of Data
 flu_data <-
@@ -164,7 +171,7 @@ p_flu_new
 
 Problem #4
 ```{r}
-pizza <- read_csv("pizza.csv")
+pizza <- read_csv("data/pizza.csv")
 
 pizza <-
   pizza %>%
