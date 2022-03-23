@@ -140,7 +140,7 @@ tidymodels_prefer()
 
 ## Import Dataset and Tidy
 ```{r}
-fishfull <- read_csv("data/fish.csv")
+fishfull <- read_csv("data/Fish.csv")
 
 # Initial Data Tidy
 fishfull <-
