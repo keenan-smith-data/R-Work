@@ -1,0 +1,134 @@
+---
+title: "ISE537 Midterm"
+author: "Keenan Smith"
+date: "3/30/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include = FALSE}
+# Library Load
+library(tidyverse)
+library(tidymodels)
+library(car)
+```
+
+## Data Import Step
+```{r Data Import}
+# Data In
+mortality_in <- read_csv("data/Mortality.csv", show_col_types = FALSE)
+
+# Data Tidy
+mortality_in <-
+  mortality_in |>
+  rename(status = Status,
+         measles = Measles,
+         under_five_deaths = `under-five_deaths`,
+         polio = Polio,
+         diphtheria = Diphtheria,
+         schooling = Schooling,
+         adult_mortality = Adult_Mortality) |>
+  mutate(status = as.factor(status))
+
+# Splitting the Data
+row_cnt <- nrow(mortality_in)
+
+# Testing Dataset
+mortality_test <-
+  mortality_in |>
+  slice((row_cnt - 9):row_cnt)
+
+# Training Dataset
+mortality_train <-
+  mortality_in |>
+  slice(1:(row_cnt - 10))
+```
+
+```{r Model 1}
+# Recipe Creation for Tidy Models
+model1_rec <-
+  recipe(adult_mortality ~ ., data = mortality_train) |>
+  step_dummy(all_nominal_predictors())
+
+# Creating Linear Regression Model Engine
+lm_model <-
+  linear_reg() |>
+  set_engine("lm")
+
+# Creating Workflow for Tidy Models
+lm_wflow_m1 <-
+  workflow() |>
+  add_recipe(model1_rec) |>
+  add_model(lm_model)
+
+# Fitting the Linear Regression to the Data
+model1 <- fit(lm_wflow_m1, mortality_train)
+
+# Tidying the Fitted Data
+model1_sum <-   
+  model1 |>
+  extract_fit_parsnip() |>
+  tidy()
+
+# Bringing the Model back into Base R to use Base R functions on the Model
+model1_eng <- 
+  model1 |> 
+  extract_fit_engine()
+```
+
+```{r Model Graphical Inspection}
+plot(model1_eng)
+parameters::model_parameters(model1_eng)
+summary(model1_eng)
+performance::check_model(model1_eng)
+```
+
+Link for Determining Row for Highest Cook's Distance
+<https://stackoverflow.com/questions/20782218/how-to-find-row-number-of-a-value-in-r-code> 
+```{r Model Residuals and Cooks Distance Analysis}
+# Create Tibbles for the Analysis
+m1_cd <- tibble(cooks = cooks.distance(model1_eng))
+model1_residuals <- tibble(residuals = model1_eng$residuals)
+
+# Create New Tibble with Analysis Tibbles binded
+mortality_residuals <-
+  mortality_train |>
+  bind_cols(model1_residuals, m1_cd)
+
+# Find Highest Cooks Distance non-graphically
+which(mortality_residuals$cooks == max(mortality_residuals$cooks), arr.ind = FALSE)
+
+# Create Mortality 2 Data Set w/o Largest Cooks Distance
+mortality2 <- mortality_train[-321, ]
+```
+
+```{r}
+# Recipe Creation for Tidy Models
+model2_rec <-
+  recipe(adult_mortality ~ ., data = mortality2) |>
+  step_dummy(all_nominal_predictors())
+
+# Creating Workflow for Tidy Models
+lm_wflow_m2 <-
+  lm_wflow_m1 |>
+  update_recipe(model2_rec)
+
+# Fitting the Linear Regression to the Data
+model2 <- fit(lm_wflow_m2, mortality2)
+
+# Tidying the Fitted Data
+mortality2_sum <-
+  model2 |>
+  extract_fit_parsnip() |>
+  tidy()
+
+# Bringing the Model back into Base R to use Base R functions on the Model
+model2_eng <- 
+  model2 |>
+  extract_fit_engine()
+```
+
+
