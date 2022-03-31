@@ -2,7 +2,10 @@
 title: "ISE537 Midterm"
 author: "Keenan Smith"
 date: "3/30/2022"
-output: html_document
+output: 
+  html_document: 
+    fig_width: 10
+    fig_height: 7
 ---
 
 ```{r setup, include=FALSE}
@@ -105,7 +108,7 @@ which(mortality_residuals$cooks == max(mortality_residuals$cooks), arr.ind = FAL
 mortality2 <- mortality_train[-321, ]
 ```
 
-```{r}
+```{r Model 2}
 # Recipe Creation for Tidy Models
 model2_rec <-
   recipe(adult_mortality ~ ., data = mortality2) |>
@@ -130,5 +133,13 @@ model2_eng <-
   model2 |>
   extract_fit_engine()
 ```
+
+```{r Model 2 Summary Mult LM}
+plot(model2_eng)
+parameters::model_parameters(model2_eng)
+summary(model2_eng)
+performance::check_model(model2_eng)
+```
+
 
 
