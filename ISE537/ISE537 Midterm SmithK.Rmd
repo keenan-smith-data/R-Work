@@ -39,27 +39,34 @@ mortality_in <-
 # Splitting the Data
 row_cnt <- nrow(mortality_in)
 
-# Testing Dataset
+# Testing Data set
 mortality_test <-
   mortality_in |>
   slice((row_cnt - 9):row_cnt)
 
-# Training Dataset
+# Training Data set
 mortality_train <-
   mortality_in |>
   slice(1:(row_cnt - 10))
 ```
 
+```{r Setting Model Engines}
+# Creating Linear Regression Model Engine
+# This is a Parsnip Engine
+lm_model <-
+  linear_reg() |>
+  set_mode("regression") |>
+  set_engine("lm")
+
+
+```
+
+
 ```{r Model 1}
-# Recipe Creation for Tidy Models
+# Recipe Creation for Model 1
 model1_rec <-
   recipe(adult_mortality ~ ., data = mortality_train) |>
   step_dummy(all_nominal_predictors())
-
-# Creating Linear Regression Model Engine
-lm_model <-
-  linear_reg() |>
-  set_engine("lm")
 
 # Creating Workflow for Tidy Models
 lm_wflow_m1 <-
@@ -68,18 +75,13 @@ lm_wflow_m1 <-
   add_model(lm_model)
 
 # Fitting the Linear Regression to the Data
-model1 <- fit(lm_wflow_m1, mortality_train)
-
-# Tidying the Fitted Data
-model1_sum <-   
-  model1 |>
-  extract_fit_parsnip() |>
-  tidy()
+model1 <- lm_wflow_m1 |> fit(mortality_train)
 
 # Bringing the Model back into Base R to use Base R functions on the Model
-model1_eng <- 
-  model1 |> 
+model1_eng <-
+  model1 |>
   extract_fit_engine()
+
 ```
 
 ```{r Model Graphical Inspection}
@@ -90,7 +92,8 @@ performance::check_model(model1_eng)
 ```
 
 Link for Determining Row for Highest Cook's Distance
-<https://stackoverflow.com/questions/20782218/how-to-find-row-number-of-a-value-in-r-code> 
+<https://stackoverflow.com/questions/20782218/how-to-find-row-number-of-a-value-in-r-code>
+
 ```{r Model Residuals and Cooks Distance Analysis}
 # Create Tibbles for the Analysis
 m1_cd <- tibble(cooks = cooks.distance(model1_eng))
@@ -120,13 +123,7 @@ lm_wflow_m2 <-
   update_recipe(model2_rec)
 
 # Fitting the Linear Regression to the Data
-model2 <- fit(lm_wflow_m2, mortality2)
-
-# Tidying the Fitted Data
-mortality2_sum <-
-  model2 |>
-  extract_fit_parsnip() |>
-  tidy()
+model2 <- lm_wflow_m2 |> fit(mortality2)
 
 # Bringing the Model back into Base R to use Base R functions on the Model
 model2_eng <- 
@@ -141,5 +138,27 @@ summary(model2_eng)
 performance::check_model(model2_eng)
 ```
 
+```{r}
+m2_stats <- tibble(residuals = model2_eng$residuals,
+                   std_residuals = rstandard(model2_eng),
+                   fitted_values = model2_eng$fitted.values,
+                   cooks = cooks.distance(model2_eng),
+                   leverage = hatvalues(model2_eng))
 
+m2_residuals <-
+  mortality2 |>
+  bind_cols(m2_stats)
+
+```
+
+```{r}
+ggplot(data = m2_residuals, aes(x = fitted_values, y = std_residuals)) +
+  geom_point()
+
+ggplot(data = m2_residuals, aes(x = fitted_values, y = cooks)) +
+  geom_point()
+
+ggplot(data = m2_residuals, aes(x = leverage, y = std_residuals)) +
+  geom_point()
+```
 
