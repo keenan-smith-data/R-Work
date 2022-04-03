@@ -1,0 +1,32 @@
+---
+title: "ST516 HW9 SmithK"
+author: "Keenan Smith"
+date: "4/2/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+
+Problem #1
+```{r}
+digits <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+count_dig <- c(99959, 99758, 100026, 100229, 100230, 100359, 99548, 99800, 99985, 1000106)
+```
+
+```{r}
+football_ncaa <- tibble(major = c("social_political_science", "liberal_arts", "health_exercise_rec", "engineering_con", "education", "sports", "business", "science_math_tech", "general"), number = c(147, 26, 29, 12, 11, 22, 73, 14, 60))
+
+general_ncaa <- tibble(major = c("social_political_science", "liberal_arts", "health_exercise_rec", "engineering_con", "education", "sports", "business", "science_math_tech", "general"), number = c(0.15, 0.17, 0.06, 0.15, 0.05, 0.08, 0.14, 0.15, 0.05))
+```
+
+```{r}
+quantile(100,)
+```
+

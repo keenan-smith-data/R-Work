@@ -6,6 +6,7 @@ output:
   html_document: 
     fig_width: 10
     fig_height: 7
+    theme: readable
 ---
 
 ```{r setup, include=FALSE}
@@ -20,7 +21,7 @@ library(car)
 ```
 
 ## Data Import Step
-```{r Data Import}
+```{r Data Import, include=FALSE}
 # Data In
 mortality_in <- read_csv("data/Mortality.csv", show_col_types = FALSE)
 
@@ -50,7 +51,7 @@ mortality_train <-
   slice(1:(row_cnt - 10))
 ```
 
-```{r Setting Model Engines}
+```{r Setting Model Engines, include=FALSE}
 # Creating Linear Regression Model Engine
 # This is a Parsnip Engine
 lm_model <-
@@ -58,10 +59,14 @@ lm_model <-
   set_mode("regression") |>
   set_engine("lm")
 
+pois_model <-
+  poisson_reg() |>
+  set_mode("regression") |>
+  set_engine("glm")
 
 ```
 
-
+## Model 1
 ```{r Model 1}
 # Recipe Creation for Model 1
 model1_rec <-
@@ -81,7 +86,6 @@ model1 <- lm_wflow_m1 |> fit(mortality_train)
 model1_eng <-
   model1 |>
   extract_fit_engine()
-
 ```
 
 ```{r Model Graphical Inspection}
@@ -96,16 +100,25 @@ Link for Determining Row for Highest Cook's Distance
 
 ```{r Model Residuals and Cooks Distance Analysis}
 # Create Tibbles for the Analysis
-m1_cd <- tibble(cooks = cooks.distance(model1_eng))
-model1_residuals <- tibble(residuals = model1_eng$residuals)
-
-# Create New Tibble with Analysis Tibbles binded
-mortality_residuals <-
+m1_stats <- tibble(residuals = model1_eng$residuals,
+                   std_residuals = rstandard(model1_eng),
+                   fitted_values = model1_eng$fitted.values,
+                   cooks = cooks.distance(model1_eng),
+                   leverage = hatvalues(model1_eng))
+# Add Model Stats to Analysis Tibble
+m1_residuals <-
   mortality_train |>
-  bind_cols(model1_residuals, m1_cd)
+  bind_cols(m1_stats)
 
 # Find Highest Cooks Distance non-graphically
-which(mortality_residuals$cooks == max(mortality_residuals$cooks), arr.ind = FALSE)
+m1_cooks_max <- which(m1_residuals$cooks == max(m1_residuals$cooks), arr.ind = FALSE)
+
+# Cooks Distance Plot for Model 1
+ggplot(data = m1_residuals, aes(x = fitted_values, y = cooks)) +
+  geom_point() +
+  labs(x = "Fitted Values",
+       y = "Cook's Distance",
+       title = "Cook's Distance vs Fitted Values")
 
 # Create Mortality 2 Data Set w/o Largest Cooks Distance
 mortality2 <- mortality_train[-321, ]
@@ -132,7 +145,6 @@ model2_eng <-
 ```
 
 ```{r Model 2 Summary Mult LM}
-plot(model2_eng)
 parameters::model_parameters(model2_eng)
 summary(model2_eng)
 performance::check_model(model2_eng)
@@ -148,17 +160,76 @@ m2_stats <- tibble(residuals = model2_eng$residuals,
 m2_residuals <-
   mortality2 |>
   bind_cols(m2_stats)
-
 ```
 
 ```{r}
+# Plots for Linear Regression Analysis
 ggplot(data = m2_residuals, aes(x = fitted_values, y = std_residuals)) +
-  geom_point()
+  geom_point() +
+  geom_smooth() +
+  labs(x = "Fitted Values",
+       y = "Standardized Residuals",
+       title = "Residuals vs Fitted") 
+
+ggplot(data = m2_residuals, aes(x = fitted_values, y = sqrt(std_residuals))) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "Fitted Values",
+       y = "Sqrt(Standardized Residuals)",
+       title = "Scale Location") 
 
 ggplot(data = m2_residuals, aes(x = fitted_values, y = cooks)) +
-  geom_point()
+  geom_point() +
+  labs(x = "Fitted Values",
+       y = "Cook's Distance",
+       title = "Cook's Distance vs Fitted Values") 
 
 ggplot(data = m2_residuals, aes(x = leverage, y = std_residuals)) +
-  geom_point()
+  geom_point() +
+  geom_smooth() +
+  labs(x = "Leverage",
+       y = "Standardized Residuals",
+       title = "Residuals vs Leverage")  
+
+ggplot(data = m2_residuals) +
+  geom_qq(aes(sample = std_residuals)) +
+  geom_abline(lty = 2, col = "blue") +
+  labs(x = "Theoretical Quantiles",
+       y = "Standardized Residuals",
+       title = "Normal Q - Q")
 ```
+
+```{r}
+# Standardized Residuals vs Qualitative Predictors
+ggplot(data = m2_residuals, aes(x = std_residuals, y = percentage_expenditure)) +
+  geom_point() +
+  geom_smooth()
+
+ggplot(data = m2_residuals, aes(x = std_residuals, y = measles)) +
+  geom_point() +
+  geom_smooth()
+
+ggplot(data = m2_residuals, aes(x = std_residuals, y = under_five_deaths)) +
+  geom_point() +
+  geom_smooth()
+
+ggplot(data = m2_residuals, aes(x = std_residuals, y = polio)) +
+  geom_point() +
+  geom_smooth()
+
+ggplot(data = m2_residuals, aes(x = std_residuals, y = diphtheria)) +
+  geom_point() +
+  geom_smooth()
+
+ggplot(data = m2_residuals, aes(x = std_residuals, y = GDP)) +
+  geom_point() +
+  geom_smooth()
+
+ggplot(data = m2_residuals, aes(x = std_residuals, y = schooling)) +
+  geom_point() +
+  geom_smooth()
+```
+
+
+
 
