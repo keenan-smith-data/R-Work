@@ -2,8 +2,8 @@
 title: "ISE537 Midterm"
 author: "Keenan Smith"
 date: "3/30/2022"
-output: 
-  html_document: 
+output:
+  html_document:
     fig_width: 10
     fig_height: 7
     theme: readable
@@ -18,9 +18,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(tidymodels)
 library(car)
+library(poissonreg)
+library(tinytex)
 ```
 
-## Data Import Step
 ```{r Data Import, include=FALSE}
 # Data In
 mortality_in <- read_csv("data/Mortality.csv", show_col_types = FALSE)
@@ -67,7 +68,10 @@ pois_model <-
 ```
 
 ## Model 1
-```{r Model 1}
+### Question 1
+Build a multiple linear regression model named model1 with Adult Mortality as the response variable and all other variables as predicting variables. Include an intercept. Display the summary table of the model.
+
+```{r Model 1, include=FALSE}
 # Recipe Creation for Model 1
 model1_rec <-
   recipe(adult_mortality ~ ., data = mortality_train) |>
@@ -88,17 +92,15 @@ model1_eng <-
   extract_fit_engine()
 ```
 
-```{r Model Graphical Inspection}
+```{r Model 1 Graphical Inspection}
 plot(model1_eng)
-parameters::model_parameters(model1_eng)
+# Summary of Model 1
 summary(model1_eng)
 performance::check_model(model1_eng)
 ```
 
-Link for Determining Row for Highest Cook's Distance
-<https://stackoverflow.com/questions/20782218/how-to-find-row-number-of-a-value-in-r-code>
 
-```{r Model Residuals and Cooks Distance Analysis}
+```{r Model 1 Residual Tibbles, include=FALSE}
 # Create Tibbles for the Analysis
 m1_stats <- tibble(residuals = model1_eng$residuals,
                    std_residuals = rstandard(model1_eng),
@@ -113,18 +115,35 @@ m1_residuals <-
 # Find Highest Cooks Distance non-graphically
 m1_cooks_max <- which(m1_residuals$cooks == max(m1_residuals$cooks), arr.ind = FALSE)
 
+# Create Mortality 2 Data Set w/o Largest Cooks Distance
+mortality2 <- mortality_train[-321, ]
+```
+
+### Question 1
+Is the overall regression significant at the 0.01 alpha level? Explain.
+
+- The overall regressing is significant with a p-value on the F-test less than .01
+
+Using model1, calculate the Cook’s distance of the points in the dataset and create a plot for the Cook’s Distances.
+Identify the row number of the observation with the highest Cook’s distance.
+
+- Row 321 is the highest Cook's Distance
+
+```{r Model Residuals and Cooks Distance Analysis}
 # Cooks Distance Plot for Model 1
 ggplot(data = m1_residuals, aes(x = fitted_values, y = cooks)) +
   geom_point() +
   labs(x = "Fitted Values",
        y = "Cook's Distance",
        title = "Cook's Distance vs Fitted Values")
-
-# Create Mortality 2 Data Set w/o Largest Cooks Distance
-mortality2 <- mortality_train[-321, ]
 ```
 
-```{r Model 2}
+## Model 2
+
+### Question 1
+Remove this observation from the mortality dataset. Call this new dataset mortality2 and create a new multiple linear regression model, called model2, using same predictors as model1 with Adult Mortality as the response. Display the summary table of this model.
+
+```{r Model 2, include=FALSE}
 # Recipe Creation for Tidy Models
 model2_rec <-
   recipe(adult_mortality ~ ., data = mortality2) |>
@@ -145,12 +164,16 @@ model2_eng <-
 ```
 
 ```{r Model 2 Summary Mult LM}
-parameters::model_parameters(model2_eng)
 summary(model2_eng)
 performance::check_model(model2_eng)
 ```
 
-```{r}
+### Question 1
+Display the summary table of this model. Are there any significant differences between the models with and without the outlier? Would you classify this observation as influential?
+
+- The high Cook's Distance value does not appear to have that much influence on the model. Though the Cook's Distance is relatively high for the rest of the dataset, it is not high in the realm of linear regression models and Cook's Distance's that are greater than .5. All the relevant model criteria for Model 2 are very similar to Model 1. 
+
+```{r Model 2 Residual Analysis Set-up, include=FALSE}
 m2_stats <- tibble(residuals = model2_eng$residuals,
                    std_residuals = rstandard(model2_eng),
                    fitted_values = model2_eng$fitted.values,
@@ -162,7 +185,14 @@ m2_residuals <-
   bind_cols(m2_stats)
 ```
 
-```{r}
+### Question 2
+Using model2, create and interpret the following plots with respect to the assumptions of the multiple linear regression model. Be sure to state all the model assumptions that can be assessed by each plot and comment on whether there are any apparent departures from the assumptions.
+Plot of the standardized residuals, versus the fitted values.
+Histogram and q-q plot of the standardized residuals.
+
+- The residuals are mostly normal but their extremes on the Q-Q plot are more frequent than a normal distribution should be. The Linearity of the residuals is very much in question as their is a distinct pattern to the residuals rather than being randomly distributed as they should be. 
+
+```{r Model 2 Model Plots}
 # Plots for Linear Regression Analysis
 ggplot(data = m2_residuals, aes(x = fitted_values, y = std_residuals)) +
   geom_point() +
@@ -199,7 +229,7 @@ ggplot(data = m2_residuals) +
        title = "Normal Q - Q")
 ```
 
-```{r}
+```{r Model 2 Individual Predictors Plot}
 # Standardized Residuals vs Qualitative Predictors
 ggplot(data = m2_residuals, aes(x = std_residuals, y = percentage_expenditure)) +
   geom_point() +
@@ -230,6 +260,158 @@ ggplot(data = m2_residuals, aes(x = std_residuals, y = schooling)) +
   geom_smooth()
 ```
 
+### Question 2
+Based on your assessment of the model assumptions, do you recommend any transformations of the data? Be specific about the type of transformation and model problem that attempts to fix. Do not apply the recommendation.
+
+- Where I would probably start with trying to fit a linear model to this data is to begin a step wise look at the data-set and remove all the coefficients that are not significant within the model and then stop when a decent adj R2 is reach or at least looks like it won't really increase with the addition of another variable. I would also do a Box-Cox look at the data and then plot each of the predictors vs the response and look to see if there are any non-linear patterns to transform the predictors by either adding polynomials or interactions, though interactions in this dataset appear to be less likely as the variables seem to be independent from one another. 
+
+### Question 3
+Using the data set mortality2, build a Poisson regression model named model3 with Adult Mortality as the response variable and all other variables as predicting variables. Include an intercept. Display the summary table of the model.
+
+```{r Model 3, include=FALSE}
+# Recipe Creation for Tidy Models
+model3_rec <-
+  recipe(adult_mortality ~ ., data = mortality2) |>
+  step_dummy(all_nominal_predictors())
+
+# Creating Workflow for Tidy Models
+lm_wflow_m3 <-
+  workflow() |>
+  add_recipe(model3_rec) |>
+  add_model(pois_model)
+
+# Fitting the Linear Regression to the Data
+model3 <- lm_wflow_m3 |> fit(mortality2)
+
+# Bringing the Model back into Base R to use Base R functions on the Model
+model3_eng <- 
+  model3 |>
+  extract_fit_engine()
+```
+
+```{r Evaluation of Model 3}
+# Summary of Model 3
+summary(model3_eng)
+performance::check_model(model2_eng)
+
+model3_nulldev <- model3_eng$null.deviance
+model3_resdev <- model3_eng$deviance
+df_null <- model3_eng$df.null
+df_res <- model3_eng$df.residual
+
+# Test for Overall Regression
+model3_p_value <- 1 - pchisq((model3_nulldev - model3_resdev), (df_null - df_res))
+model3_p_value
+```
+
+```{r Model 3 Residual Modeling, include=FALSE}
+m3_stats <- tibble(residuals = model3_eng$residuals,
+                   std_residuals = rstandard(model3_eng),
+                   fitted_values = model3_eng$fitted.values,
+                   cooks = cooks.distance(model3_eng),
+                   leverage = hatvalues(model3_eng))
+
+m3_residuals <-
+  mortality2 |>
+  bind_cols(m3_stats)
+```
 
 
+```{r Model 3 Residual Analysis}
+ggplot(data = m3_residuals) +
+  stat_qq(aes(sample = std_residuals)) +
+  labs(x = "Theoretical Quantiles",
+       y = "Standardized Residuals",
+       title = "Normal Q - Q")
 
+ggplot(data = m3_residuals, aes(residuals)) +
+  geom_histogram(bins = 50, color = "blue") +
+  labs(x = "Standardized Residuals",
+       y = "Frequency",
+       title = "Histogram of Residuals")
+```
+
+### Question 3
+Perform a test for the overall regression, using alpha = 0.01. Does the overall regression have explanatory power? Explain.
+
+- The model does have explanatory power with a P-value less than 0. 
+
+### Question 4
+a. What is the estimated value of the StatusDeveloping coefficient in model2 and model3?
+
+- Model 2's coefficient is 6.530e+00. Model 3's is 2.431e-01.
+
+```{r Status Confint Testing}
+confint(model2_eng, "status_Developing", level = .99)
+confint(model3_eng, "status_Developing", level = .99)
+
+status_developing_coef <- model3_eng$coefficients[9]
+
+exp(status_developing_coef)
+```
+
+b. Calculate the 99% confidence intervals of the StatusDeveloping coefficient for each model. Using these confidence intervals, is the coefficient statistically different from zero at the 0.01 significance level? Explain.
+
+- Model 3 is statistically significant and the confidence interval does not contain 0 which is a good thing. Model 2 is not statistically significant and the confidence interval supports this by containing 0. 
+
+c. Interpret the StatusDeveloping coefficient in the context of each model. Note: Make sure that you are treating Developed as the baseline level.
+
+- If the status of the country changes from Developed to Developing, the poisson model shows that the the intercept of the GLM will be increased by .2431. This does not affect the slope of the line. The rate for adult mortality will be 1.275 times higher in a developing country than a developed country.
+
+
+### Question 5
+Is at least one of the variables under.five_deaths and Diphtheria statistically significant given all other variables in model3? Perform a testing for subset of coefficients. Interpret the results of the test, using alpha = 0.05.
+
+- In model 3, diptheria is not statistically significant with a z value of -0.246 but under_five_deaths is statistically significant at a 0.05 level.
+
+
+### Question 6
+Perform a goodness-of-fit statistical test for model3 using the deviance residuals and alpha = 0.01. Provide the null and alternative hypotheses, test statistic, p-value, and conclusions in the context of the problem.
+
+```{r Model 3 Goodness of Fit Testing}
+model3_gof <- tibble("Residual Diff" = model3_resdev, "Deg of Freedom" = df_res, "P-Value" = (1 - pchisq(model3_resdev, df_res)))
+
+model3_gof
+```
+
+- The Deviance Goodness of Fit test shows a low P-value which indicates that the Poisson model is not a good fit for this data set. This holds for the residual analysis performed earlier. H0 is that the poisson model is a good fit. HA is that the model is not a good fit. Rejecting the Null means the model is not a good fit for the data. 
+
+### Question 7
+a. Estimate Adult Mortality for the last 10 rows of data (mortalityTest) using both model2 and model3.
+b. Calculate the Mean Absolute Prediction Error (MAE) and the Precision Measure (PM) of both models.
+
+```{r Model Metrics}
+model2_predict <- predict(model2, new_data = mortality_test %>% select(-adult_mortality))
+model2_predict <- bind_cols(model2_predict, mortality_test %>% select(adult_mortality))
+
+model3_predict <- predict(model3, new_data = mortality_test %>% select(-adult_mortality))
+model3_predict <- bind_cols(model3_predict, mortality_test %>% select(adult_mortality))
+
+# Model 2 Metrics
+model2_metrics <- metric_set(rmse, rsq, mae, mape)
+model2_metric <- model2_metrics(model2_predict, truth = adult_mortality, estimate = .pred)
+
+# Model 3 Metrics
+model3_metrics <- metric_set(rmse, rsq, mae, mape)
+model3_metric <- model3_metrics(model3_predict, truth = adult_mortality, estimate = .pred)
+
+# Precision Measure 
+pm_model_2 <- sum((model2_predict$.pred-mortality_test$adult_mortality)^2)/sum((mortality_test$adult_mortality-mean(mortality_test$adult_mortality))^2)
+pm_model_2
+pm_model_3 <- sum((model3_predict$.pred-mortality_test$adult_mortality)^2)/sum((mortality_test$adult_mortality-mean(mortality_test$adult_mortality))^2)
+pm_model_3
+
+mspe_model2 <- mean((model2_predict$.pred-mortality_test$adult_mortality)^2)
+mspe_model3 <- mean((model3_predict$.pred-mortality_test$adult_mortality)^2)
+mspe_model2
+mspe_model3
+
+metric_comparision <- 
+  tibble("Metrics" = model2_metric$.metric, "Mult Linear Reg Values" = model2_metric$.estimate, "Poisson Reg Values" = model3_metric$.estimate)
+  
+metric_comparision
+```
+
+c. Compare and discuss the values obtained in B). Which model performed the best?
+
+- The model that performed the best is the Poisson Regression, but it is barely better than model 2. I think the path forward would be to perform a incremental and step wise analysis to determine a better predictive model. As it currently stands, I would not utilize this model for its predictive value and use it more to determine coefficients and whether they actually have any impact on the model itself. This is the point where more in depth model analysis is required. 
