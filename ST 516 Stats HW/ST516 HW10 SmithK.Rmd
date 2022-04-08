@@ -1,0 +1,238 @@
+---
+title: "ST516 HW10 SmithK"
+author: "Keenan Smith"
+date: "4/7/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(tidyverse)
+```
+
+
+
+## Problem #1
+```{r}
+n1 <- 10
+n2 <- 12
+n3 <- 14
+
+x1 <- 27
+s1 <- 18
+x2 <- 21
+s2 <- 24
+x3 <- 31
+s3 <- 20
+
+total_n <- sum(c(n1, n2, n3))
+
+overall_mean <- ((n1*x1) + (n2*x2) + (n3*x3))/(total_n)
+
+overall_mean
+
+SSG <- (n1 * (x1 - overall_mean)^2) + (n2 * (x2 - overall_mean)^2) + (n3 * (x3 - overall_mean)^2)
+SSG
+
+SSE <- ((n1 - 1) * s1^2) + ((n2 - 1) * s2^2) + ((n3 - 1) * s3^2)
+SSE
+
+df_ssg <- 2
+df_sse <- 33
+df_sst <- 35
+
+msg <- SSG / df_ssg
+mse <- SSE / df_sse
+
+f_stat <- msg/mse
+
+msg
+mse
+f_stat
+
+```
+
+## Problem #2
+```{r}
+shelf_1 <- c(.03, .07, .13, .44, .39, .13)
+shelf_2 <- c(.47, .43, .47, .48, .45, .43)
+shelf_3 <- c(.24, .30, .17, .09)
+
+shelf1_mean <- mean(shelf_1)
+shelf2_mean <- mean(shelf_2)
+shelf3_mean <- mean(shelf_3)
+
+shelf1_sd <- sd(shelf_1)
+shelf2_sd <- sd(shelf_2)
+shelf3_sd <- sd(shelf_3)
+
+shelf1_n <- length(shelf_1)
+shelf2_n <- length(shelf_2)
+shelf3_n <- length(shelf_3)
+
+shelf_n <- shelf1_n + shelf2_n + shelf3_n
+
+shelf_mean <- ((shelf1_mean * shelf1_n) + (shelf2_mean * shelf2_n) + (shelf3_mean * shelf3_n)) / shelf_n
+
+shelf_ssg <- (shelf1_n * (shelf1_mean - shelf_mean)^2) + (shelf2_n * (shelf2_mean - shelf_mean)^2) + (shelf3_n * (shelf3_mean - shelf_mean)^2)
+
+shelf_sse <- ((shelf1_n - 1) * shelf1_sd^2) + ((shelf2_n - 1) * shelf2_sd^2) + ((shelf3_n - 1) * shelf3_sd^2)
+
+shelf_ssg
+shelf_sse
+
+shelf_pooled_sd <- sqrt(shelf_sse / (shelf_n - 3))
+
+
+df_shelf <- 2
+df_error_shelf <- shelf_n - df_shelf - 1
+df_total_shelf <- shelf_n - 1
+
+shelf_msg <- shelf_ssg / df_shelf
+shelf_mse <- shelf_sse / df_error_shelf
+
+f_stat_shelf <- shelf_msg / shelf_mse
+
+shelf_msg
+shelf_mse
+f_stat_shelf
+
+1 - pf(f_stat_shelf, df_shelf, df_error_shelf)
+
+shelf_pooled_sd
+
+```
+
+## Problem #3
+```{r}
+bonds <- c(410, 410, 429, 510, 400, 440, 461, 360, 480, 460, 360, 510, 458)
+mcgwire <- c(430, 390, 420, 400, 380, 390, 350, 364, 380, 405, 420, 430, 344)
+sosa <- c(410, 390, 398, 410, 360, 360, 430, 415, 370, 417, 375, 404, 404)
+
+bonds_mean <- mean(bonds)
+mcgwire_mean <- mean(mcgwire)
+sosa_mean <- mean(sosa)
+bonds_sd <- sd(bonds)
+mcgwire_sd <- sd(mcgwire)
+sosa_sd <- sd(sosa)
+bonds_n <- length(bonds)
+mcgwire_n <- length(mcgwire)
+sosa_n <- length(sosa)
+
+baseball_n <- bonds_n + mcgwire_n + sosa_n
+
+df_baseball <- 2
+df_error_baseball <- baseball_n - 3
+df_baseball_tot <- baseball_n - 1
+
+baseball_mean <- ((bonds_mean * bonds_n) + (mcgwire_mean * mcgwire_n) + (sosa_mean * sosa_n)) / baseball_n
+
+baseball_ssg <- (bonds_n * (bonds_mean - baseball_mean)^2) + (mcgwire_n * (mcgwire_mean - baseball_mean)^2) + (sosa_n * (sosa_mean - baseball_mean)^2)
+
+baseball_sse <- ((bonds_n - 1) * bonds_sd^2) + ((mcgwire_n - 1) * mcgwire_sd^2) + ((sosa_n - 1) * sosa_sd^2)
+
+baseball_msg <- baseball_ssg / df_baseball
+baseball_mse <- baseball_sse / df_error_baseball
+
+baseball_msg
+baseball_mse
+
+f_stat_baseball <- baseball_msg / baseball_mse
+f_stat_baseball
+
+1 - pf(f_stat_baseball, df_baseball, df_error_baseball)
+
+baseball <- data.frame(player = rep(c("Bonds", "McGwire", "Sosa"), each = 13), distance = c(410, 410, 429, 510, 400, 440, 461, 360, 480, 460, 360, 510, 458, 430, 390, 420, 400, 380, 390, 350, 364, 380, 405, 420, 430, 344, 410, 390, 398, 410, 360, 360, 430, 415, 370, 417, 375, 404, 404))
+
+baseball <- as_tibble(baseball)
+
+
+baseball_aov <- aov(distance ~ player, data = baseball)
+summary(baseball_aov)
+
+pairwise.t.test(baseball$distance, baseball$player, p.adjust.method = "bonferroni")
+
+
+g_baseball <- 3 * (3-1) / 2
+
+alpha_baseball <- 1 - (1 - .06) ^ g_baseball
+alpha_star <- .06 / g_baseball
+alpha_star_t <- alpha_star / 2
+
+t_stat_baseball <- qt(alpha_star_t, df_error_baseball, lower.tail = FALSE)
+t_stat_baseball
+
+bonf_s <- sqrt(baseball_mse)
+
+confint_calc <- t_stat_baseball * bonf_s * sqrt((1/sosa_n) + (1/bonds_n))
+
+
+mean_bond_mcgwire <- bonds_mean - mcgwire_mean
+mean_bond_sosa <- bonds_mean - sosa_mean
+mean_mcgwire_sosa <- mcgwire_mean - sosa_mean
+
+mean_bond_mcgwire + confint_calc
+mean_bond_mcgwire - confint_calc
+mean_bond_sosa + confint_calc
+mean_bond_sosa - confint_calc
+mean_mcgwire_sosa + confint_calc
+mean_mcgwire_sosa - confint_calc
+
+```
+
+## Problem #5
+```{r}
+tv <- read_csv("data/tv watching anova.csv", show_col_types = FALSE)
+
+tv
+
+boxplot(TVhours ~ Group,
+        data = tv,
+        main = "TV Hours",
+        xlab = "Group",
+        ylab = "Hours Watched",
+        col = "steelblue",
+        border = "black")
+
+tv_aov <- aov(TVhours ~ Group, data = tv)
+summary(tv_aov)
+
+tv <- 
+  tv |>
+  mutate(hours_sq = sqrt(TVhours))
+  
+
+boxplot(hours_sq ~ Group,
+        data = tv,
+        main = "TV Hours",
+        xlab = "Group",
+        ylab = "Hours Watched",
+        col = "steelblue",
+        border = "black")
+
+tv_aov_adj <- aov(hours_sq ~ Group, data = tv)
+summary(tv_aov_adj)
+
+tv_summary <-
+  tv |>
+  group_by(Group) |>
+  summarise(count = n())
+
+tv_summary
+
+alpha_tv <- 1 - (1 - .05) ^ 6
+alpha_star_tv <- .05 / 6
+alpha_star_tv_t <- alpha_star_tv / 2
+
+t_stat_tv <- qt(alpha_star_tv_t, 193, lower.tail = FALSE)
+t_stat_tv
+
+bonf_s_tv <- sqrt(1.229)
+
+confint_calc_tv <- t_stat_tv * bonf_s_tv * sqrt((1/tv_summary$count[4]) + (1/tv_summary$count[2]))
+confint_calc_tv
+
+```
+
