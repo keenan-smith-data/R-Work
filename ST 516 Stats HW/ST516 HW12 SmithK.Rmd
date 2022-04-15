@@ -1,0 +1,53 @@
+---
+title: "ST516 HW12 SmithK"
+author: "Keenan Smith"
+date: "4/15/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(DescTools)
+```
+
+
+```{r}
+pf(17.8, 2, 6, lower.tail = FALSE)
+pf(9.58, 3, 6, lower.tail = FALSE)
+
+```
+
+```{r}
+p_pressure <- pf(4.29, 2, 18, lower.tail = FALSE)
+p_accel <- pf(2.35, 1, 18, lower.tail = FALSE)
+p_inter <- pf(1.54, 2, 18, lower.tail = FALSE)
+p_pressure
+p_accel
+p_inter
+
+
+```
+
+## Problem 3
+```{r}
+tennis <- read_csv("data/Tennis balls replicated.csv", show_col_types = FALSE)
+
+tennis <- 
+  tennis |>
+  mutate(Brand = as.factor(Brand),
+         Temperature = as.factor(Temperature))
+
+tennis_anova <- aov(Height ~ Brand * Temperature, data = tennis)
+summary(tennis_anova)
+
+tennis_anova_add <- aov(Height ~ Brand + Temperature, data = tennis)
+summary(tennis_anova_add)
+
+PostHocTest(tennis_anova_add, method = "bonferroni", conf.level = 0.97)
+
+```
+

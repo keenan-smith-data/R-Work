@@ -1,0 +1,10 @@
+﻿Rel.Humidity,Coating,Cycles to Failure (000)
+Low,Uncoated,361
+Low,Anodized,92
+Low,Conversion,429
+Medium,Uncoated,314
+Medium,Anodized,110
+Medium,Conversion,252
+High,Uncoated,1344
+High,Anodized,466
+High,Conversion,846

@@ -1,0 +1,131 @@
+---
+title: "ST516 HW11 SmithK"
+author: "Keenan Smith"
+date: "4/15/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(DescTools)
+```
+
+
+## Problem 1
+Interaction Plot
+<https://www.statology.org/interaction-plot-r/>
+Two-Way Anova
+<https://rcompanion.org/rcompanion/d_08.html>
+Bonferroni
+<https://campus.datacamp.com/courses/intro-to-statistics-with-r-analysis-of-variance-anova/chapter-two-post-hoc-analysis?ex=5>
+
+```{r}
+# Creating Tibble for Anova Testing
+race_car <- tibble(test = c(1:8), speed = c(65, 60, 70, 55, 65, 55, 70, 60), octane = c(87, 87, 87, 87, 90, 90, 90, 90), mileage = c(33.4, 34.5, 31.5, 35.7, 33.4, 36.9, 32.4, 35.7))
+
+# Data Tidying
+race_car <-
+  race_car |>
+  mutate(speed_fac = as.factor(speed),
+         octane_fac = as.factor(octane))
+
+
+# Two Way Anova
+anova_car <- aov(mileage ~ speed_fac + octane_fac, data = race_car)
+anova_car
+
+# DescTools Test to Calculate Bonferroni Confidence Intervals
+PostHocTest(anova_car, method = "bonferroni", conf.level = 0.94)
+
+# Bonferroni Method to Examine which Means are Significant
+# car_bonf <- pairwise.t.test(race_car$mileage, race_car$speed, p.adjust.method = "bonferroni", conf.level = .94)
+
+# Interaction Plot to get Answer for Question and to Examine the Factor's Interactions with one another
+interaction.plot(x.factor = race_car$octane, #x-axis variable
+                 trace.factor = race_car$speed, #variable for lines
+                 response = race_car$mileage, #y-axis variable
+                 fun = median, #metric to plot
+                 ylab = "Mileage",
+                 xlab = "Octane",
+                 col = c("pink", "blue"),
+                 lty = 1, #line type
+                 lwd = 2, #line width
+                 trace.label = "Speed")
+```
+
+## Problem 2
+```{r}
+# Data Import Step
+fast_food <- read_csv("data/unreplicated fast food nutrition.csv", show_col_types = FALSE)
+
+# Data Tidying after Input to ensure Data is Useful for Anova
+fast_food <-
+  fast_food |>
+  rename(restaurant = `Fast Food Restaurant`,
+         item = Item,
+         type = Type,
+         serving_size = `Serving Size (g)`,
+         calories = Calories,
+         total_fat = `Total Fat (g)`,
+         sat_fat = `Saturated Fat (g)`,
+         trans_fat = `Trans Fat (g)`,
+         sodium = `Sodium (mg)`,
+         carbs = `Carbs (g)`,
+         sugars = `Sugars (g)`,
+         protein = `Protein (g)`)|>
+  mutate(restaurant = as.factor(restaurant),
+         type = as.factor(type))
+
+# Two-Way Anova for Restaurant and Type
+anova_food <- aov(calories ~ restaurant + type, data = fast_food)
+summary(anova_food)
+
+# DescTools Test to Calculate Bonferroni Confidence Intervals
+PostHocTest(anova_food, method = "bonferroni", conf.level = 0.85)
+
+# Pairwise T-Test with Bonferroni as Method to Examine which Means are Different
+pairwise.t.test(fast_food$calories, fast_food$type, p.adjust.method = "bonferroni", conf.level = .85)
+
+
+```
+
+## Problem 3
+```{r}
+# Data Import
+corrosion <- read_csv("data/unreplicated corrosion fatigue.csv", show_col_types = FALSE)
+
+# Data Tidying
+corrosion <-
+  corrosion |>
+  rename(rel_humidity = Rel.Humidity,
+         coating = Coating,
+         cycles_to_fail = `Cycles to Failure (000)`) |>
+  mutate(rel_humidity = as.factor(rel_humidity),
+         coating = as.factor(coating))
+
+# Finding Grand Mean
+mu_hat <- mean(corrosion$cycles_to_fail)
+mu_hat
+
+# Creating Aggregate Tibbles to Determine Alpha Values
+rel_humidity_agg <-
+  corrosion |>
+  group_by(rel_humidity) |>
+  summarise(humid_mean = mean(cycles_to_fail)) |>
+  mutate(a_hat = humid_mean - mu_hat)
+
+# Creating Aggregate Tibbles to Determine Beta Values
+coating_agg <-
+  corrosion |>
+  group_by(coating) |>
+  summarise(coating_mean = mean(cycles_to_fail)) |>
+  mutate(a_hat = coating_mean - mu_hat)
+
+rel_humidity_agg
+coating_agg
+```
+

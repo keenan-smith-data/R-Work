@@ -1,0 +1,61 @@
+﻿Fast Food Restaurant,Item,Type,Serving Size (g),Calories,Total Fat (g),Saturated Fat (g),Trans Fat (g),Sodium (mg),Carbs (g),Sugars (g),Protein (g)
+McDonald's,Quarter Pounder with Cheese,Burger,202,520,26,12,1.5,1100,41,10,30
+McDonald's,Chocolate Shake (12oz),Milkshake,257,530,15,10,1,160,86,63,11
+McDonald's,Premium Crispy Chicken Classic Sandwich,Breaded Chicken Sandwich,213,510,22,3.5,0,990,55,10,24
+McDonald's,Premium Grilled Chicken Classic Sandwich,Grilled Chicken Sandwich,200,350,9,2,0,820,42,8,28
+McDonald's,Chicken McNuggets® (4 piece),Chicken Nuggets,65,190,12,2,0,360,12,0,9
+McDonald's,Small French Fries,French Fries,75,230,11,1.5,0,130,30,0,2
+Burger King,DOUBLE WHOPPER® Sandwich,Burger,341,850,54,18,2.5,870,49,11,43
+Burger King,Chocolate Milk Shake,Milkshake,343,610,16,10,0,500,103,88,14
+Burger King,TENDERCRISP® Chicken Sandwich,Breaded Chicken Sandwich,248,660,40,7,0,1220,49,7,26
+Burger King,TENDERGRILL® Chicken Sandwich,Grilled Chicken Sandwich,217,420,18,3,0,700,35,6,32
+Burger King,Chicken Nuggets- 4pc,Chicken Nuggets,58,170,11,1.5,0,310,11,0,8
+Burger King,French Fries - small (Salted),French Fries,128,320,14,2.5,0,480,44,0,4
+Wendy's,1/2 lb. Double w/ Cheese,Burger,329,820,47,20,3,1510,42,10,48
+Wendy's,"Chocolate Frosty Shake, Small",Milkshake,342,580,13,8,1,250,104,93,11
+Wendy's,Homestyle Chicken Sandwich,Breaded Chicken Sandwich,247,510,20,4,0,1200,54,8,29
+Wendy's,Ultimate Chicken Grill Sandwich,Grilled Chicken Sandwich,231,370,7,2,0,880,43,9,34
+Wendy's,4-Piece Regular Chicken Nuggets,Chicken Nuggets,60,180,12,3,0,350,10,0,9
+Wendy's,Small Natural-Cut Fries,French Fries,108,310,15,3,0,330,40,0,4
+Jack in the Box,Sirloin Cheeseburger,Burger,370,1030,71,23,2.5,1990,52,9,41
+Jack in the Box,"Shake, Chocolate w/ Whipped Topping 16 oz.",Milkshake,376,800,38,26,1.5,300,101,88,13
+Jack in the Box,Chicken Sandwich,Breaded Chicken Sandwich,147,410,21,3.5,0,880,42,4,15
+Jack in the Box,Sourdough Grilled Chicken Club,Grilled Chicken Sandwich,261,540,26,7,0,1490,38,6,39
+Jack in the Box,Chicken Nuggets 5 pc.,Chicken Nuggets,77,240,17,2,0,600,13,0,9
+Jack in the Box,Sourdough Grilled Chicken Club,French Fries,107,330,15,1.5,0,610,45,0,4
+Sonic,SuperSONIC® BACON DOUBLE CHEESEBURGER WITH MAYO,Burger,396,1240,87,35,3.5,1690,44,8,67
+Sonic,Chocolate Shake Small,Milkshake,387,670,31,23,0,330,89,56,8
+Sonic,CLASSIC CHICKEN SANDWICH-CRISPY,Breaded Chicken Sandwich,244,580,29,4.5,0,900,57,7,28
+Sonic,CLASSIC CHICKEN SANDWICH-GRILLED,Grilled Chicken Sandwich,257,450,17,2,0,1240,44,7,32
+Sonic,JUMBO POPCORN CHICKEN®MEDIUM,Chicken Nuggets,114,380,22,4,0,1260,27,1,18
+Sonic,NATURAL-CUT FRIES SMALL,French Fries,80,250,12,2,0,260,33,0,3
+Dairy Queen,1/2 lb. Cheese GrillBurger,Burger,313,770,46,20,1.5,1410,43,10,45
+Dairy Queen,"Chocolate Shake, Small",Milkshake,373,550,19,14,0.5,220,82,71,13
+Dairy Queen,Crispy Chicken Sandwich,Breaded Chicken Sandwich,198,610,30,3.5,0,1120,50,5,22
+Dairy Queen,Grilled Chicken Sandwich,Grilled Chicken Sandwich,194,360,16,2.5,0,1040,32,6,26
+Dairy Queen,3 Chicken Strips,Chicken Nuggets,128,350,20,3,0,960,22,0,22
+Dairy Queen,French Fries - Regular,French Fries,142,380,17,2.5,0,790,54,0,4
+Carl's Jr.,Super Star with Cheese,Burger,390,930,56,23,2,1540,59,14,48
+Carl's Jr.,Chocolate Shake,Milkshake,397,700,36,24,1.5,300,84,59,12
+Carl's Jr.,Buttermilk Ranch Chicken Tender Sandwich,Breaded Chicken Sandwich,207,493,23.2,2.7,0.1,1287,43.2,0.4,26.7
+Carl's Jr.,Charbroiled Chicken Club Sandwich,Grilled Chicken Sandwich,203,398,30.5,9.5,0.4,1216,36.2,5.7,28.9
+Carl's Jr.,Kid's Chicken Tenders (2 pcs.),Chicken Nuggets,93,220,11.1,1.6,0.1,859,9.5,0.2,20.6
+Carl's Jr.,Natural-Cut Fries (Small),French Fries,105,304,14.7,2.7,0.1,610,39.4,0.3,3.4
+Hardee's,1/2 LB Original Thinkbuger,Burger,424,1030,70,24,,2240,57,16,45
+Hardee's,Charbroiled Chicken Club™ Sandwich,Grilled Chicken Sandwich,248,590,31,8,,1510,35,9,42
+Hardee's,Big Chicken Fillet Sandwich,Breaded Chicken Sandwich,329,750,42,8,,1490,63,11,32
+Hardee's,3 Piece Hand-Breaded Chicken Tenders,Chicken Nuggets,128,260,13,2.5,,770,13,0,25
+Hardee's,Natural Cut French Fries - Small,French Fries,126,360,18,3,,730,47,0,4
+Hardee's,Hand Scooped Ice-Cream Shake,Milkshake,397,710,33,24,,240,87,73,14
+White Castle,Double Bacon Cheese Slider,Burger,121,400,27,12,1,1220,21,2,21
+White Castle,Chicken Ring Slider,Breaded Chicken Sandwich,92,380,30,7,0,460,16,2,10
+White Castle,Savory Grilled Chicken Slider,Grilled Chicken Sandwich,88,180,7,1.5,0,570,13,2,15
+White Castle,6 Chicken Rings,Chicken Nuggets,143,530,47,9,0,610,12,0,18
+White Castle,Small French Fries,French Fries,148,330,21,4,0,50,32,2,3
+White Castle,Chocolate Milk Shake (Chicago Region) 21oz,Milkshake,450,550,10,5.5,0,330,106,90,12
+Whataburger,Double Meat Whataburger,Burger,400,830,44,14,2,1470,62,12,47
+Whataburger,Grilled Chicken Sandwich,Breaded Chicken Sandwich,278,430,13,3,0,1040,49,13,35
+Whataburger,Whatachick'n® Sandwich,Grilled Chicken Sandwich,285,560,22,4,0,1050,69,14,29
+Whataburger,Whatachick'n® Strips 2 Piece,Chicken Nuggets,183,370,20,4,0,1050,31,1,17
+Whataburger,French Fries (Small),French Fries,85,280,14,2,0,170,35,0,3
+Whataburger,Chocolate Shake 16 oz,Milkshake,343,430,9,6,0,400,79,77,8
