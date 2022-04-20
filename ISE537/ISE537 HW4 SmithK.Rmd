@@ -1,0 +1,19 @@
+---
+title: "ISE537 HW 4"
+author: "Keenan Smith"
+date: "4/20/2022"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(tidymodels))
+```
+
+```{r Data Import}
+set.seed(100)
+
+dragon <- read_csv("data/Bio_pred.csv", show_col_types = FALSE)
+
+```
+
