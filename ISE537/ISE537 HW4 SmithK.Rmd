@@ -2,12 +2,38 @@
 title: "ISE537 HW 4"
 author: "Keenan Smith"
 date: "4/20/2022"
-output: html_document
+mainfont: Roboto
+geometry: margin=1cm
+output: 
+  pdf_document:
+    df_print: kable
+    latex_engine: xelatex
+  html_document:
+    theme:
+      bootswatch: spacelab
 ---
 
-```{r}
+"Built with R Version `r getRversion()`"
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(tinytex.verbose = TRUE)
+options(digits=5)
+```
+
+```{r Library Initialize, include=FALSE}
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(tidymodels))
+suppressPackageStartupMessages(library(glmnet))
+library(vip)
+library(doParallel)
+library(kableExtra)
+
+all_cores <- parallel::detectCores(logical = FALSE)
+
+cl <- makePSOCKcluster(all_cores)
+registerDoParallel(cl)
+
+clusterEvalQ(cl, {library(tidymodels)})
 ```
 
 ```{r Data Import}
@@ -15,5 +41,736 @@ set.seed(100)
 
 dragon <- read_csv("data/Bio_pred.csv", show_col_types = FALSE)
 
+dragon <-
+  dragon |>
+  rename(n072 = `N-072`,
+         b02 = `B02[C-N]`,
+         f04 = `F04[C-O]`)
+# Splitting Data via Rsample
+dragon_split <- initial_split(dragon, strata = logBCF, prop = .8)
+
+dragon_train <- training(dragon_split)
+dragon_test <- testing(dragon_split)
+
+dragon_folds <- vfold_cv(dragon_train, v = 10)
+
+# Intercept Only
+model_intercept_only <- lm(logBCF ~ 1, data = dragon_train)
+
+# Deriving Full Model for Stepwise Regression in base R
+model_all <- lm(logBCF ~ ., data = dragon_train)
 ```
 
+```{r Model Engines via TidyModels Framework}
+# Least Squares Linear Regression
+lm_spec <-
+  linear_reg() |>
+  set_engine("lm") |>
+  set_mode("regression")
+
+# Ridge Regression Using Glmnet
+ridge_spec <-
+  linear_reg(penalty = tune(), mixture = 0) |>
+  set_mode("regression") |>
+  set_engine("glmnet")
+
+# Lasso Regression Using Glmnet
+lasso_spec <-
+  linear_reg(penalty = tune(), mixture = 1) |>
+  set_mode("regression") |>
+  set_engine("glmnet")
+
+# Elastic Net Regression Using Glmnet
+elastic_spec <-
+  linear_reg(penalty = tune(), mixture = tune()) |>
+  set_mode("regression") |>
+  set_engine("glmnet")
+```
+
+## Question 1
+
+Fit a standard linear regression with the variable logBCF as the response and the other variables as predictors. Call it model1. Display the model summary.
+
+```{r Model 1}
+# Recipe for Model 1
+model1_rec <-
+  recipe(logBCF ~ ., data = dragon_train)
+
+# Creating Workflow for Tidy Models
+lm_wflow_m1 <-
+  workflow() |>
+  add_recipe(model1_rec) |>
+  add_model(lm_spec)
+
+# Fitting the Linear Regression to the Data
+model1 <- fit(lm_wflow_m1, dragon_train)
+
+# Tidying the Fitted Data
+model1_tidy <- 
+  model1 |>
+  extract_fit_parsnip() |>
+  tidy()
+
+# Bringing the Model back into Base R to use Base R functions on the Model
+model1_eng <- 
+  model1 |> 
+  extract_fit_engine()
+
+# Summary of Model 1
+summary(model1_eng)
+```
+
+Which regression coefficients are significant at the 95% confidence
+level? At the 99% confidence level? 
+
+- nHM and MLOGP are the only significant coefficients at both a 95% and 99% confidence level.
+
+What are the 10-fold and leave one out cross-validation scores for this model?
+
+For Reference: 
+<https://www.tidymodels.org/start/resampling/>
+<https://www.statology.org/leave-one-out-cross-validation-in-r/>
+
+-   See code below for calculation of both for Model 1
+
+```{r Model 1 Cross Validation}
+# Leave One Out Cross Validation
+# Using the Caret Package to do Leave One Out Since TidyModels Does not Support LOO
+ctrl <- caret::trainControl(method = "LOOCV")
+model1_loo <- caret::train(logBCF ~ ., data = dragon_train, method = "lm", trControl = ctrl)
+
+# 10-Fold Cross-Validation
+model1_cv_wf <-
+  workflow() |>
+  add_model(lm_spec) |>
+  add_formula(logBCF ~ .) |>
+  fit_resamples(dragon_folds)
+
+# Leave One Out Metrics
+model1_loo
+```
+
+
+```{r Cross Validation Latex Ouput, echo=FALSE}
+# Collecting Metrics for 10-Fold Cross-Validation
+kbl(collect_metrics(model1_cv_wf), format = "latex", align = "c", booktabs = T, caption = "Metrics for 10 Fold Cross Validation on Model 1") |>
+  kable_styling(latex_options = "HOLD_position")
+```
+
+
+What are the Mallow's Cp, AIC, and BIC criterion values for this model?
+
+For Reference:
+<https://www.r-bloggers.com/2021/10/model-selection-in-r-aic-vs-bic/>
+
+-   See calculation below after Model 2 is derived. See below for AIC and BIC using the `glance()` function and there are summary statistics later on that have the Cp for all models where it is required, in this instance, Cp for Model 1 is 10.
+
+```{r Model 1 Prediction and Meaningful Metrics}
+# Predicting on Test Data using Last Fit Function
+model1_lf <- last_fit(model1, split = dragon_split)
+
+# Using Broom Glance function to look at Meaningful Metrics (sans Cp)
+model1_metrics <- glance(model1)
+```
+
+
+
+```{r, echo=FALSE}
+kbl(model1_metrics, format = "latex", align = "c", booktabs = T, caption = "Model 1 Metrics") |>
+  kable_styling(latex_options = "HOLD_position")
+```
+
+Build a new model on the training data with only the variables which coefficients were found to be statistically significant at the 99% confident level. Call it model2. Perform an ANOVA test to compare this new model with the full model. Which one would you prefer? Is it good practice to select variables based on statistical significance of individual coefficients? Explain.
+
+```{r Model 2}
+# Recipe for Model 2
+model2_rec <-
+  recipe(logBCF ~ nHM + MLOGP, data = dragon_train)
+
+# Creating Workflow for Tidy Models
+lm_wflow_m2 <-
+  workflow() |>
+  add_recipe(model2_rec) |>
+  add_model(lm_spec)
+
+# Fitting the Linear Regression to the Data
+model2 <- fit(lm_wflow_m2, dragon_train)
+
+# Bringing the Model back into Base R to use Base R functions on the Model
+model2_eng <- 
+  model2 |> 
+  extract_fit_engine()
+
+# Summary of Model 2
+summary(model2_eng)
+```
+
+Which one would you prefer? Is it good practice to select variables based on statistical significance of individual coefficients? Explain.
+
+- The F-Test between models states that we should pick the full model over the limited model since even though its close, the full model is statistically significant thus rejecting the null hypothesis that the models are identical. It is a good starting point to isolate based on individual variables, but as we will see below, there are several computational methods that will accomplish these things in a much easier and faster way to optimize the model. 
+
+```{r ANOVA Between the Models and Mallows Cp}
+# ANOVA Between Model 1 and Model 2
+m1_m2_anova <- anova(model2_eng, model1_eng) |> tidy()
+
+cp_model1 <- olsrr::ols_mallows_cp(model1_eng, model_all)
+cp_model2 <- olsrr::ols_mallows_cp(model2_eng, model_all)
+```
+
+
+```{r, echo=FALSE}
+kbl(m1_m2_anova, format = "latex", align = "c", booktabs = T, caption = "Model Comparison ANOVA") |>
+  kable_styling(latex_options = "HOLD_position")
+```
+
+For Reference:
+<https://www.thomasvanhoey.com/post/2021-10-12-tidymodels-interactions/>
+
+```{r, fig.align='center', echo=FALSE}
+# Predicting on Test Data using Last Fit Function
+model2_lf <- last_fit(model2, split = dragon_split)
+
+model1_lf |>
+  collect_predictions() |>
+  ggplot(aes(.pred, logBCF)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, color = "orange") +
+  labs(x = "Predicted LogBCF",
+       y = "Observed LogBCF",
+       title = "Model 1 R2 Plot")
+
+model2_lf |>
+  collect_predictions() |>
+  ggplot(aes(.pred, logBCF)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, color = "orange") +
+  labs(x = "Predicted LogBCF",
+       y = "Observed LogBCF",
+       title = "Model 2 R2 Plot")
+```
+
+## Question 2
+
+For Reference:
+<https://towardsdatascience.com/selecting-the-best-predictors-for-linear-regression-in-r-f385bf3d93e9>
+
+Compare all possible models using Mallow's Cp. What is the total number of possible models with the full set of variables? Display a table indicating the variables included in the best model of each size and the corresponding Mallow's Cp value.
+
+```{r Full Model Search, fig.align='center'}
+# Full Model Exhaustive Subset Selection
+reg_subsets_out <- leaps::regsubsets(logBCF ~ ., data = dragon_train, 
+                                     nbest = 1, 
+                                     nvmax = NULL,
+                                     method = "exhaustive")
+# Plot to look at the Variable Usage in Regards to Cp
+plot(reg_subsets_out, scale = "Cp")
+
+# Graphical Look at CP with Regards to Variable Selection
+car::subsets(reg_subsets_out, statistic = "cp", legend = FALSE, min.size = 2, main = "Mallow Cp")
+
+# Code to Determine the Lowest Cp Row
+# Break out into Summary Data Frame
+reg_subsets_summary <- summary(reg_subsets_out)
+reg_subsets_cp <- as_tibble(reg_subsets_summary$outmat)
+
+# Determine which Cp is the lowest row
+exh_subset_row <- which.min(reg_subsets_summary$cp)
+```
+
+
+```{r, echo=FALSE}
+kbl(reg_subsets_cp[exh_subset_row,], format = "latex", align = "c", booktabs = T, caption = "Variables Selected Using LEAPS") |>
+  kable_styling(latex_options = "HOLD_position")
+```
+
+How many variables are in the model with the lowest Mallow's Cp value? Which variables are they? Fit this model and call it model3. 
+
+- 5 variables. See model 3 recipe and summary to see which Variables.
+
+```{r Model 3}
+# Recipe for Model 3
+model3_rec <-
+  recipe(logBCF ~ nHM + piPC09 + X2Av + MLOGP + f04, data = dragon_train)
+
+# Creating Workflow for Tidy Models
+lm_wflow_m3 <-
+  workflow() |>
+  add_recipe(model3_rec) |>
+  add_model(lm_spec)
+
+# Fitting the Linear Regression to the Data
+model3 <- fit(lm_wflow_m3, dragon_train)
+
+# Bringing the Model back into Base R to use Base R functions on the Model
+model3_eng <- 
+  model3 |> 
+  extract_fit_engine()
+
+cp_model3 <- olsrr::ols_mallows_cp(model3_eng, model_all)
+
+# Summary of Model 2
+summary(model3_eng)
+```
+
+## Question 3
+
+For Reference: <https://www.statology.org/stepwise-regression-r/>
+
+Perform backward stepwise regression using BIC. Allow the minimum model to be the model with only an intercept, and the full model to be model1. Display the model summary of your final model. Call it model4.
+
+```{r Backwards Stepwise Regression}
+# Model 4 through Backward Regression
+model4 <- MASS::stepAIC(model_all, direction = "backward", trace = FALSE)
+
+# Summary of Model 4
+summary(model4)
+cp_model4 <- olsrr::ols_mallows_cp(model4, model_all)
+```
+
+How many variables are in model4? Which regression coefficients are significant at the 99% confidence level? 
+
+- The variables are located in the model4 summary and are the same variables selected for Model 3. nHM, pipC09, and MLOGP are all significant at a 99% confidence level.
+
+Perform forward stepwise selection with AIC. Allow the minimum model to be the model with only an intercept, and the full model to be model1. Display the model summary of your final model. Call it model5.
+
+```{r Forwards Stepwise Regression}
+# Model 5 through Forward Stepwise Regression
+model5 <- MASS::stepAIC(model_intercept_only,  direction = "forward", trace = FALSE)
+
+# Summary of Model 5
+summary(model5)
+cp_model5 <- olsrr::ols_mallows_cp(model5, model_all)
+```
+
+Compare the adjusted R2, Mallow's Cp, AICs and BICs of the full model(model1), the model found in Question 2(model3), and the model found using backward selection with BIC (model4).
+
+```{r Model 1-5 Comparison}
+model2_metrics <- glance(model2)
+model3_metrics <- glance(model3)
+model4_metrics <- glance(model4)
+model5_metrics <- glance(model5)
+
+cp_tibble <- tibble(cp = c(cp_model1, cp_model2, cp_model3, cp_model4, cp_model5))
+
+metrics_df <-
+  model1_metrics |>
+  bind_rows(model2_metrics, model3_metrics, model4_metrics, model5_metrics) |>
+  bind_cols(cp_tibble)
+```
+
+
+
+```{r, echo=FALSE}
+kbl(metrics_df, digits = 3, format = "latex", align = "c", booktabs = T, caption = "Model 1-5 Metrics") |>
+  kable_styling(latex_options = "HOLD_position")
+```
+
+Which model is preferred based on these criteria and why? 
+
+- Models tend to be selected based on a high Adj-R2, low Mallow's Cp, low AIC, and low BIC. Based on this, Model's 3 and 4 are identical and though the BIC is slightly higher than model 2, all other metrics are better than model 2.
+
+## Question 4
+
+For Reference for Tidymodels:
+<https://juliasilge.com/blog/lasso-the-office/>
+
+Perform ridge regression on the training set. Use cv.glmnet() to find the lambda value that minimizes the cross-validation error using 10 fold CV. 
+
+```{r Ridge Regression, fig.align='center'}
+# Setting up the recipe for Ridge Regression using Tidymodels
+ridge_recipe <-
+  recipe(formula = logBCF ~ ., data = dragon_train) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_predictors())
+
+# Setting up the Basic Workflow for Ridge based on Silge
+ridge_workflow <-
+  workflow() |>
+  add_recipe(ridge_recipe)
+
+# Setting up a Grid for Tuning the Ridge Regression
+lambda_grid <- grid_regular(penalty(c(-5,5)), levels = 50)
+
+# Finding Lambda based on 10 Fold CV
+ridge_grid <- tune_grid(
+  ridge_workflow |> add_model(ridge_spec),
+  resamples = dragon_folds,
+  grid = lambda_grid)
+
+# A very Cool Graph Based on Silge Work
+ridge_grid |>
+  collect_metrics() |>
+  ggplot(aes(penalty, mean, color = .metric)) +
+  geom_errorbar(aes(
+    ymin = mean - std_err,
+    ymax = mean + std_err
+  ),
+  alpha = 0.5
+  ) +
+  geom_line(size = 1.5) +
+  facet_wrap(~.metric, scales = "free", nrow = 2) +
+  scale_x_log10() +
+  theme(legend.position = "none")
+
+# Selecting Lambda based on the best RMSE value from the Tuned Grid
+lowest_ridge_rmse <- ridge_grid |>
+  select_best("rmse", maximise = FALSE)
+
+# Final Ridge Regression Workflow
+final_ridge <- finalize_workflow(
+  ridge_workflow |> add_model(ridge_spec),
+  lowest_ridge_rmse
+)
+
+# Ridge Regression fit to the Training Data
+# Value of Coefficients for Optimal Lambda
+final_ridge |>
+  fit(data = dragon_train) |>
+  extract_fit_parsnip() |>
+  tidy()
+
+# Regression Coefficient Path for Ridge Regression
+final_ridge |>
+  fit(data = dragon_train) |>
+  extract_fit_engine() |>
+  autoplot()
+
+# A very nice graph that shows the predictors in Columns
+final_ridge |>
+  fit(dragon_train) |>
+  extract_fit_parsnip() |>
+  vi(lambda = lowest_ridge_rmse$penalty) |>
+  mutate(
+    Importance = abs(Importance),
+    Variable = fct_reorder(Variable, Importance)
+  ) |>
+  ggplot(aes(x = Importance, y = Variable, fill = Sign)) +
+  geom_col() +
+  scale_x_continuous(expand = c(0,0)) +
+  labs(y = NULL)
+```
+
+
+```{r, echo=FALSE}
+# Value of Coefficients for Optimal Lambda
+kbl(final_ridge |>
+  fit(data = dragon_train) |>
+  extract_fit_parsnip() |>
+  tidy(),
+  format = "latex", 
+  align = "c", 
+  booktabs = T,
+  caption = "Ridge Regression Coefficients and Lambda Value") |>
+  kable_styling(latex_options = "HOLD_position")
+```
+
+b. List the value of coefficients at the optimum lambda value.
+
+- These are listed in the Table Ridge Regression Coefficients and Lambda Value. Because of the way Ridge Regression is done, Ridge Regression cannot reduce a variable to zero.
+
+c. How many variables were selected? Give an explanation for this number.
+
+- Ridge Regression does not do Variable Selection so all the Variables are selected and are reduced in various amounts. 
+
+## Question 5
+
+```{r Lasso Regression, fig.align='center'}
+# Setting up the recipe for Lasso Regression using Tidymodels
+lasso_recipe <-
+  recipe(formula = logBCF ~ ., data = dragon_train) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_predictors())
+
+# Setting up the Basic Workflow for Lasso based on Silge
+lasso_workflow <-
+  workflow() |>
+  add_recipe(lasso_recipe)
+
+# Setting up a Grid for Tuning the Ridge Regression
+# lambda_grid <- grid_regular(penalty(c(-5,5)), levels = 50)
+
+# Finding Lambda based on 10 Fold CV
+lasso_grid <- tune_grid(
+  lasso_workflow |> add_model(lasso_spec),
+  resamples = dragon_folds,
+  grid = lambda_grid)
+
+# A very Cool Graph Based on Silge Work
+lasso_grid |>
+  collect_metrics() |>
+  ggplot(aes(penalty, mean, color = .metric)) +
+  geom_errorbar(aes(
+    ymin = mean - std_err,
+    ymax = mean + std_err
+  ),
+  alpha = 0.5
+  ) +
+  geom_line(size = 1.5) +
+  facet_wrap(~.metric, scales = "free", nrow = 2) +
+  scale_x_log10() +
+  theme(legend.position = "none")
+
+# Selecting Lambda based on the best RMSE value from the Tuned Grid
+lowest_lasso_rmse <- lasso_grid |>
+  select_best("rmse", maximise = FALSE)
+
+# Final Lasso Regression Workflow
+final_lasso <- finalize_workflow(
+  lasso_workflow |> add_model(lasso_spec),
+  lowest_lasso_rmse
+)
+
+# Regression Coefficient Path
+final_lasso |>
+  fit(data = dragon_train) |>
+  extract_fit_engine() |>
+  autoplot()
+
+# A very nice graph that shows the predictors in Columns
+final_lasso |>
+  fit(dragon_train) |>
+  extract_fit_parsnip() |>
+  vi(lambda = lowest_lasso_rmse$penalty) |>
+  mutate(
+    Importance = abs(Importance),
+    Variable = fct_reorder(Variable, Importance)
+  ) |>
+  ggplot(aes(x = Importance, y = Variable, fill = Sign)) +
+  geom_col() +
+  scale_x_continuous(expand = c(0,0)) +
+  labs(y = NULL)
+```
+
+
+
+```{r, echo=FALSE}
+# Value of Coefficients for Optimal Lambda
+kbl(final_lasso |>
+  fit(data = dragon_train) |>
+  extract_fit_parsnip() |>
+  tidy(),
+  format = "latex", 
+  align = "c", 
+  booktabs = T,
+  caption = "LASSO Regression Coefficients and Lambda Value") |>
+  kable_styling(latex_options = "HOLD_position")
+```
+
+b. Plot the regression coefficient path.
+
+- See Table for Regression Path
+
+c. How many variables were selected? Which are they?
+
+- 6 Variables were selected. They are MLOGP, nHM, piPC09, b02, f04, and X2Av.
+
+## Question 6
+
+For Reference:
+<https://dnield.com/posts/tidymodels-intro/>
+
+```{r Elastic Net Regression, fig.align='center'}
+
+mixture_parameters <- parameters(penalty(), mixture())
+elastic_grid <-
+  grid_regular(mixture_parameters, levels = 50)
+
+# Setting up the recipe for Lasso Regression using Tidymodels
+elastic_recipe <-
+  recipe(formula = logBCF ~ ., data = dragon_train) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_predictors())
+
+# Setting up the Basic Workflow for Lasso based on Silge
+elastic_workflow <-
+  workflow() |>
+  add_recipe(elastic_recipe)
+
+# Finding Lambda based on 10 Fold CV
+elastic_grid <- tune_grid(
+  elastic_workflow |> add_model(elastic_spec),
+  resamples = dragon_folds,
+  grid = elastic_grid)
+
+# A very Cool Graph Based on Silge Work
+elastic_grid |>
+  collect_metrics() |>
+  ggplot(aes(penalty, mean, color = .metric)) +
+  geom_errorbar(aes(
+    ymin = mean - std_err,
+    ymax = mean + std_err
+  ),
+  alpha = 0.5
+  ) +
+  geom_line(size = 1.5) +
+  facet_wrap(~.metric, scales = "free", nrow = 2) +
+  scale_x_log10() +
+  theme(legend.position = "none")
+
+# Selecting Lambda based on the best RMSE value from the Tuned Grid
+lowest_elastic_rmse <- elastic_grid |>
+  select_best("rmse", maximise = FALSE)
+
+# Final Lasso Regression Workflow
+final_elastic <- finalize_workflow(
+  elastic_workflow |> add_model(elastic_spec),
+  lowest_elastic_rmse
+)
+
+# Regression Coefficient Path
+final_elastic |>
+  fit(data = dragon_train) |>
+  extract_fit_engine() |>
+  autoplot()
+
+# A very nice graph that shows the predictors in Columns
+final_elastic |>
+  fit(dragon_train) |>
+  extract_fit_parsnip() |>
+  vi(lambda = lowest_elastic_rmse$penalty) |>
+  mutate(
+    Importance = abs(Importance),
+    Variable = fct_reorder(Variable, Importance)
+  ) |>
+  ggplot(aes(x = Importance, y = Variable, fill = Sign)) +
+  geom_col() +
+  scale_x_continuous(expand = c(0,0)) +
+  labs(y = NULL)
+```
+
+
+```{r, echo=FALSE}
+# Value of Coefficients for Optimal Lambda
+kbl(final_elastic |>
+  fit(data = dragon_train) |>
+  extract_fit_parsnip() |>
+  tidy(),
+  format = "latex", 
+  align = "c", 
+  booktabs = T,
+  caption = "Elastic Net Regression Coefficients and Lambda Value") |>
+  kable_styling(latex_options = "HOLD_position")
+```
+
+
+## Question 7
+
+Predict logBCF for each of the rows in the test data using the full model, and the models found using backward stepwise regression with BIC, ridge regression, lasso regression, and elastic net.
+
+```{r, fig.align='center'}
+
+# Full Model Linear Regression Prediction
+model1_prediction_metrics <-  
+  model1 |>
+  predict(dragon_test) |>
+  bind_cols(select(dragon_test, logBCF)) |>
+  metrics(truth = logBCF, estimate = .pred)
+
+# Backwards Regression Prediction
+model4_prediction_metrics <-  
+  model4 |>
+  predict(dragon_test) |>
+  bind_cols(select(dragon_test, logBCF)) |>
+  rename(.pred = ...1) |>
+  metrics(truth = logBCF, estimate = .pred)  
+
+# Predicting on the Test Set using Ridge Regression
+ridge_prediction_metrics <-
+  final_ridge |>
+  fit(dragon_train) |>
+  predict(dragon_test) |> 
+  bind_cols(select(dragon_test, logBCF)) |>
+  metrics(truth = logBCF, estimate = .pred)
+
+# Predicting on the Test Set Using the Lasso
+lasso_prediction_metrics <-
+  final_lasso |>
+  fit(dragon_train) |>
+  predict(dragon_test) |> 
+  bind_cols(select(dragon_test, logBCF)) |>
+  metrics(truth = logBCF, estimate = .pred)
+
+# Predicting on the Test Set Using Elastic Net
+elastic_prediction_metrics <-
+  final_elastic |>
+  fit(dragon_train) |>
+  predict(dragon_test) |> 
+  bind_cols(select(dragon_test, logBCF)) |>
+  metrics(truth = logBCF, estimate = .pred)
+
+summary(model1_eng)
+summary(model4)
+# Value of Coefficients for Optimal Lambda
+final_ridge |>
+  fit(data = dragon_train) |>
+  extract_fit_parsnip() |>
+  tidy()
+
+# Lasso Regression fit to the Training Data
+final_lasso |>
+  fit(data = dragon_train) |>
+  extract_fit_parsnip() |>
+  tidy()
+
+# Lasso Regression fit to the Training Data
+final_elastic |>
+  fit(data = dragon_train) |>
+  extract_fit_parsnip() |>
+  tidy()
+```
+
+
+```{r Model Test Metrics, echo=FALSE}
+kbl(model1_prediction_metrics,
+  format = "latex", 
+  align = "c", 
+  booktabs = T,
+  caption = "Model 1 Test Metrics")  |>
+  kable_styling(latex_options = "HOLD_position")
+
+kbl(model4_prediction_metrics,
+  format = "latex", 
+  align = "c", 
+  booktabs = T,
+  caption = "Backwards Stepwise Test Metrics") |>
+  kable_styling(latex_options = "HOLD_position")
+
+kbl(ridge_prediction_metrics,
+  format = "latex", 
+  align = "c", 
+  booktabs = T,
+  caption = "Ridge Test Metrics") |>
+  kable_styling(latex_options = "HOLD_position")
+
+kbl(lasso_prediction_metrics,
+  format = "latex", 
+  align = "c", 
+  booktabs = T,
+  caption = "LASSO Test Metrics") |>
+  kable_styling(latex_options = "HOLD_position")
+
+kbl(elastic_prediction_metrics,
+  format = "latex", 
+  align = "c", 
+  booktabs = T,
+  caption = "Elastic Net Test Metrics") |>
+  kable_styling(latex_options = "HOLD_position")
+```
+
+Compare the predictions using mean squared prediction error. Which model performed the best?
+
+- The model that performed the best based on root mean squared errors was the ridge regression with a value of  .813.
+
+Provide a table listing each method described in Question 7a and the variables selected by each method (refer to the following example). Which variables were selected consistently?
+
+| Variable | Backward Stepwise | Ridge | LASSO | Elastic Net |
+|----------|-------------------|-------|-------|-------------|
+| nHM | X | X | X | X |
+| piPC09 | X | X | X | X |
+| PCD |  | X |  |  |
+| x2Av | X | X | X | X |
+| MLOGP | X | X | X | X |
+| ON1V |  | X |  |  |
+| n072 |  | X |  |  |
+| b02 |  | X | X | X |
+| f02 | X | X | X | X |
