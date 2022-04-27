@@ -3,13 +3,14 @@ title: "ISE537 HW3 SmithK"
 author: "Keenan Smith"
 date: "3/27/2022"
 output:
-  pdf_document: default
+  pdf_document:
+    df_print: kable
+    latex_engine: xelatex
   html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tinytex)
 ```
 
 # Problem 1
