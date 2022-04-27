@@ -1,0 +1,138 @@
+---
+title: "ISE537 HW5"
+author: "Keenan Smith"
+date: '2022-04-27'
+geometry: margin=1cm
+output: 
+  pdf_document:
+    df_print: kable
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Library Import, include=FALSE}
+library(tidyverse)
+```
+
+PCA. Given a matrix data, where the sample size is 20 and the dimensionality of each sample is 10. The data can be found in data set “Data.csv”. Conduct PCA on X as follows:
+
+For reference I utilized the folowing link to get the R coding in a nice way that formated to the outputs of R.
+
+<https://www.ime.usp.br/~pavan/pdf/PCA-R-2013>
+
+```{r Data Import}
+data = read_csv("data/Data.csv", col_names = FALSE, show_col_types = FALSE)
+matrix_data <- as.matrix(data)
+```
+
+## PCA vis Eigen Decomposition
+
+a) Program the Eigen Decomposition method
+
+```{r Eigen Decomposition}
+# Compute Correlation/Covariance Matrix and Eigenvalues
+e_cov <- eigen(cov(data))
+
+# Eigen Decomposition
+eigenvalues = e_cov$values
+eigenvectors = e_cov$vectors
+
+# Creating Feature Matrix
+feature_mat <- matrix_data %*% eigenvectors
+
+#Calculate total variance
+e_total_var<-sum(diag(cov(feature_mat))) 
+
+#Create empty vectors
+e_sdev <- rep(NA,ncol(matrix_data))
+e_prop_var<-rep(NA,ncol(matrix_data))
+e_cum_var<-rep(NA,ncol(matrix_data)) 
+
+#Calculate proportion of variance explained and cumulative variance explained
+for(i in 1:ncol(matrix_data)){
+  e_prop_var[i]<-var(feature_mat[,i])/e_total_var
+  }
+for(i in 1:ncol(matrix_data)){
+  e_cum_var[i]<-sum(e_prop_var[1:i])
+  }
+
+
+e_sdev = sqrt(eigenvectors)
+
+e_dataframe <- tibble(eigenvalues = eigenvalues, prop_var = e_prop_var, cum_var = e_cum_var)
+```
+
+## PCA via SVD
+
+b) Program the SVD method
+
+```{r Single Value Decomposition}
+d_svd <- svd(matrix_data, nu = 0)
+
+#Calculate the divisor for the variance
+svd_var <- nrow(data) - 1
+
+#Specify eigenvectors for svd
+svd_vectors <- d_svd$v
+#Calculate standard deviation of new variables
+svd_sdev <- d_svd$d / sqrt(svd_var)
+
+#Sqaure the standard deviation to find the eigenvalues
+svd_values <- svd_sdev * svd_sdev
+
+feat_mat_svd <- matrix_data %*% svd_vectors
+
+svd_total_var <- sum(diag(cov(feat_mat_svd)))
+
+#Create empty vectors
+svd_prop_var<-rep(NA,ncol(matrix_data))
+svd_cum_var<-rep(NA,ncol(matrix_data)) 
+
+#Calculate proportion of variance explained and cumulative variance explained
+for(i in 1:ncol(matrix_data)){
+  svd_prop_var[i]<-var(feat_mat_svd[,i])/svd_total_var
+  }
+for(i in 1:ncol(matrix_data)){
+  svd_cum_var[i]<-sum(svd_prop_var[1:i])
+}
+
+svd_dataframe <- tibble(eigenvalues = svd_values, prop_var = svd_prop_var, cum_var = svd_cum_var)
+```
+
+## PCA via prcomp
+
+c) Use existing pca function and compare the solution to your solutions in a) and b).
+
+```{r PCA using prcomp}
+d_pca <-prcomp(matrix_data)
+
+pca_values <- d_pca$sdev * d_pca$sdev
+pca_vectors <- d_pca$rotation
+feat_mat_pca <- d_pca$x
+pca_sdev <- d_pca$sdev
+
+pca_prop_var <- summary(d_pca)$importance[2,]
+pca_cum_var <- summary(d_pca)$importance[3,]
+
+pca_dataframe <- tibble(eigenvalues = pca_values, prop_var = pca_prop_var, cum_var = pca_cum_var)
+```
+
+```{r Comparison}
+e_dataframe
+svd_dataframe
+pca_dataframe
+
+fve_dataframe <- tibble(pca = pca_dataframe$cum_var, ed = e_dataframe$cum_var, svd = svd_dataframe$cum_var)
+fve_dataframe
+
+plot(d_pca)
+```
+
+- Eigenvalues and prcomp are very similar if not exact in their derivation and SVD is very close. 
+
+## Fraction of Variance Explained (FVE)
+
+- Using FVE to select PC's that the FVE is equal to 90%, for each method, we would choose k = 7 since each method has a cumulative variance percentage above 90% at k=7
